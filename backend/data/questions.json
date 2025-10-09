@@ -1,0 +1,799 @@
+[
+{
+  "id": 1,
+  "question": "Se você apontar para algum objeto no quarto, o seu filho olha para este objeto? (POR EXEMPLO, se você apontar para um brinquedo ou animal, o seu filho olha para o brinquedo ou para o animal?)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "interview_prompt": "Para entendermos melhor como seu filho reage quando você aponta para algo, por favor, marque todos os comportamentos que ele costuma apresentar na lista abaixo.",
+    "exemplos_passou": [
+      { "id": "p1", "label": "Olha para o objeto"},
+      { "id": "p2", "label": "Aponta para o objeto" },
+      { "id": "p3", "label": "Olha e comenta sobre o objeto" },
+      { "id": "p4", "label": "Olha quando o genitor aponta e diz 'olhe!'" }
+    ],
+    "exemplos_falhou": [
+      { "id": "f1", "label": "Ele/ela ignora você" },
+      { "id": "f2", "label": "Olha ao redor do quarto sem fixar nenhum objeto" },
+      { "id": "f3", "label": "Olha para o dedo do genitor" }
+    ],
+    "tiebreaker": {
+      "prompt": "Quais os que ele faz com mais frequência?",
+      "options": [
+        { "label": "Os mais frequentes são os exemplos de PASSOU", "outcome": "PASSOU" },
+        { "label": "Os mais frequentes são os exemplos de FALHOU", "outcome": "FALHOU" }
+      ]
+    }
+  }
+},
+
+{
+  "id": 2,
+  "question": "Alguma vez você se perguntou se o seu filho pode ser surdo?",
+  "scoring_risk_on": "Sim",
+  "follow_up": {
+    "interview_prompt": "Você indicou que já se perguntou se seu filho pode ser surdo. O que o levou a esse pensamento? [cite: 122, 123] Por favor, confirme se algum dos comportamentos abaixo acontece.",
+    "exemplos_falhou": [
+      { "id": "f1", "label": "Com frequência ignora sons [cite: 126]" },
+      { "id": "f2", "label": "Com frequência ignora as pessoas [cite: 126]" }
+    ],
+    "logic": {
+      "rule": "Se o usuário selecionar QUALQUER um dos exemplos, o resultado é FALHOU. Se o usuário não selecionar NENHUM (equivalente a 'Não para ambos'), o resultado é PASSOU."
+    },
+    "additional_info_prompt": {
+      "prompt": "Seu filho já fez exame auditivo? [cite: 132]",
+      "type": "single_choice",
+      "options": [
+        { "label": "Audição na faixa normal [cite: 137]" },
+        { "label": "Audição abaixo do normal [cite: 138]" },
+        { "label": "Resultados que não tiveram conclusão ou não definitivos [cite: 140]" },
+        { "label": "Não, ele não fez o exame [cite: 135]" }
+      ]
+    }
+  }
+},
+
+{
+  "id": 3,
+  "question": "O seu filho brinca de faz de contas? (POR EXEMPLO, faz de conta que bebe em um copo vazio, faz de conta que fala ao telefone, faz de conta que dá comida a uma boneca ou a um bichinho de pelúcia?) [cite: 52]",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "interview_prompt": "Para confirmarmos, vamos verificar alguns exemplos de brincadeiras de 'faz de contas'. Seu filho já fez alguma das ações a seguir?",
+    "exemplos_passou": [
+      { "id": "p1", "label": "Fez de conta que bebia em uma xícara de brinquedo?" },
+      { "id": "p2", "label": "Fez de conta que comia com uma colher ou um garfo de brinquedo?"  },
+      { "id": "p3", "label": "Fez de conta que falava no telefone?" },
+      { "id": "p4", "label": "Fez de conta que dava comida a uma boneca ou a um bichinho de pelúcia, com comida de verdade ou de brinquedo?"  },
+      { "id": "p5", "label": "Brincou de empurrar um carro de brinquedo, como se o carro andasse em uma estrada?" },
+      { "id": "p6", "label": "Fez de conta que era um robô, um avião, uma bailarina ou algum dos seus personagens favoritos?" },
+      { "id": "p7", "label": "Colocou uma panela de brinquedo em um fogão de brinquedo?" },
+      { "id": "p8", "label": "Mexeu uma comida de mentirinha?" },
+      { "id": "p9", "label": "Colocou um boneco dentro de um carro ou um caminhão como se o boneco fosse o motorista ou passageiro?" },
+      { "id": "p10", "label": "Fez de conta que aspirava o tapete, varria o chão ou cortava a grama?" },
+      { "id": "p11", "label": "Outro tipo de faz de contas (descrever)" }
+    ],
+    "exemplos_falhou": [],
+    "logic": {
+      "rule": "Se o usuário confirmar QUALQUER um dos exemplos (equivalente a 'Sim para qualquer um'), o resultado é PASSOU. Se negar TODOS (equivalente a 'Não para todos'), o resultado é FALHOU."
+    }
+  }
+},
+
+{
+  "id": 4,
+  "question": "O seu filho gosta de subir nas coisas? (POR EXEMPLO, móveis, brinquedos em parques ou escadas)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "interview_prompt": "Para confirmarmos, por favor, nos diga em qual tipo de coisa seu filho gosta de subir. Ele gosta de subir em alguma das opções abaixo?",
+    "exemplos_passou": [
+      { "id": "p1", "label": "Escadas" },
+      { "id": "p2", "label": "Cadeiras" },
+      { "id": "p3", "label": "Móveis" },
+      { "id": "p4", "label": "Brinquedos em parques" }
+    ],
+    "exemplos_falhou": [],
+    "logic": {
+      "rule": "Se o usuário confirmar QUALQUER um dos exemplos (equivalente a 'Sim para qualquer um'), o resultado é PASSOU. Se negar TODOS (equivalente a 'Não para todos'), o resultado é FALHOU."
+    }
+  }
+},
+
+{
+  "id": 5,
+  "question": "O seu filho faz movimentos estranhos com os dedos perto dos olhos? (POR EXEMPLO, mexe os dedos em frente aos olhos e fica olhando para os mesmos?)",
+  "scoring_risk_on": "Sim",
+  "follow_up": {
+    "on_nao": {
+      "outcome": "PASSOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Não' para esta pergunta resulta em PASSOU na consulta de seguimento."
+      }
+    },
+    "on_sim": {
+      "interview_prompt": "Você mencionou que ele faz movimentos estranhos. Por favor, descreva quais dos comportamentos abaixo ele apresenta.",
+      "exemplos_passou": [
+        { "id": "p1", "label": "Olha para as mãos?" },
+        { "id": "p2", "label": "Move os dedos quando brinca de mostrar e esconder o rosto?" }
+      ],
+      "exemplos_falhou": [
+        { "id": "f1", "label": "Movimenta os dedos perto dos olhos?" },
+        { "id": "f2", "label": "Mantém as mãos elevadas perto dos olhos?" },
+        { "id": "f3", "label": "Mantém as mãos ao lado dos olhos?" },
+        { "id": "f4", "label": "Agita as mãos perto do rosto?" },
+        { "id": "f5", "label": "Outro (descrever)" }
+      ],
+      "logic": {
+        "rule": "Se o usuário selecionar APENAS exemplos da lista 'passou', o resultado é PASSOU. Se selecionar QUALQUER exemplo da lista 'falhou', prossiga para a verificação de frequência.",
+        "frequency_check": {
+          "prompt": "Isso acontece mais de duas vezes por semana?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "outcome": "FALHOU" },
+            { "label": "Não", "outcome": "PASSOU" }
+          ]
+        }
+      }
+    }
+  }
+},
+
+{
+  "id": 6,
+  "question": "O seu filho aponta com o dedo para pedir algo ou para conseguir ajuda? (POR EXEMPLO, aponta para um biscoito ou brinquedo fora do alcance dele?)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_sim": {
+      "outcome": "PASSOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Sim' resulta diretamente em PASSOU na consulta de seguimento."
+      }
+    },
+    "on_nao": {
+      "interview_prompt": "Se seu filho quer algo que está fora do alcance, como uma comida ou um brinquedo, o que ele faz para conseguir pegar? Por favor, selecione todas as ações que ele costuma fazer.",
+      "options": [
+        { "id": "o1", "label": "Tenta alcançar o objeto com a mão?" },
+        { "id": "o2", "label": "Leva você até o objeto?" },
+        { "id": "o3", "label": "Tenta pegar o objeto sozinho?" },
+        { "id": "o4", "label": "Pede usando palavras ou sons?" }
+      ],
+      "logic": {
+        "rule": "Se o usuário não selecionar NENHUMA opção (equivalente a 'Não para todos'), o resultado é FALHOU. Se selecionar QUALQUER opção (equivalente a 'Sim para qualquer'), prossiga para o 'clarification_prompt'."
+      },
+      "clarification_prompt": {
+        "prompt": "Entendido. Nessa situação, se você disser a ele 'me mostre', ele aponta para o objeto?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "outcome": "PASSOU" },
+          { "label": "Não", "outcome": "FALHOU" }
+        ]
+      }
+    }
+  }
+},
+
+{
+  "id": 7,
+  "question": "O seu filho aponta com o dedo para mostrar algo interessante para você? (POR EXEMPLO, aponta para um avião no céu ou um caminhão grande na rua)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "intro_text": "Acabamos de falar sobre o apontar para pedir algo. Mas, e para mostrar algo interessante para você, ele aponta com o dedo?",
+    "start_node": "initial_decision",
+    "nodes": {
+      "initial_decision": {
+        "type": "logic_gate",
+        "rule": "Baseado na resposta da pergunta 'intro_text', vá para 'sim_path' ou 'nao_path'."
+      },
+      "sim_path": {
+        "prompt": "Por favor, me dê um exemplo de algo que ele possa apontar para mostrar para você.",
+        "type": "logic_gate",
+        "rule": "Após o exemplo, prossiga para 'ask_how_attention_is_called'."
+      },
+      "nao_path": {
+        "prompt": "Seu filho alguma vez já quis que você olhasse para algo interessante como...",
+        "type": "multiple_choice",
+        "options": [
+          { "label": "Um avião no céu?", "next_node": "check_nao_path_answers" },
+          { "label": "Um caminhão na rua?", "next_node": "check_nao_path_answers" },
+          { "label": "Um bicho no chão?", "next_node": "check_nao_path_answers" },
+          { "label": "Um animal no quintal?", "next_node": "check_nao_path_answers" }
+        ]
+      },
+      "check_nao_path_answers": {
+        "type": "logic_gate",
+        "rule": "Se o usuário confirmar QUALQUER opção (equivalente a 'Sim para qualquer um'), vá para 'ask_how_attention_is_called'. Se negar TODAS (equivalente a 'Não para todos'), vá para 'final_falhou'."
+      },
+      "ask_how_attention_is_called": {
+        "prompt": "Como é que seu filho chama sua atenção para ele? Ele aponta com o dedo?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "next_node": "ask_pointing_purpose" },
+          { "label": "Não", "next_node": "ask_pointing_purpose" }
+        ]
+      },
+      "ask_pointing_purpose": {
+        "prompt": "Ele aponta para mostrar o interesse dele/dela ou para pedir ajuda?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Tanto para mostrar o interesse dele/dela como para conseguir ajuda", "next_node": "final_passou" },
+          { "label": "Apenas para conseguir ajuda", "next_node": "final_falhou" }
+        ]
+      },
+      "final_passou": {
+        "type": "result",
+        "outcome": "PASSOU"
+      },
+      "final_falhou": {
+        "type": "result",
+        "outcome": "FALHOU"
+      }
+    }
+  }
+},
+
+{
+  "id": 8,
+  "question": "O seu filho se interessa por outras crianças? (POR EXEMPLO, seu filho olha para outras crianças, sorri para elas ou se aproxima delas?)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "start_node": "initial_decision",
+    "nodes": {
+      "initial_decision": {
+        "type": "logic_gate",
+        "rule": "Baseado na resposta inicial do M-CHAT-R, vá para 'sim_path_start' ou 'nao_path_start'."
+      },
+      "sim_path_start": {
+        "prompt": "Ele se interessa por crianças que não são irmãos dele?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "next_node": "final_passou" },
+          { "label": "Não", "next_node": "central_checklist" }
+        ]
+      },
+      "nao_path_start": {
+        "prompt": "Quando vocês estão na pracinha ou no supermercado, seu filho geralmente responde perguntas de outras crianças?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "next_node": "nao_path_frequency_check" },
+          { "label": "Não", "next_node": "central_checklist" }
+        ]
+      },
+      "nao_path_frequency_check": {
+        "prompt": "Ele responde a outras crianças mais da metade das vezes?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "next_node": "final_passou" },
+          { "label": "Não", "next_node": "final_falhou" }
+        ]
+      },
+      "central_checklist": {
+        "prompt": "Como é que seu filho responde a outras crianças? Por favor, selecione todos os comportamentos que ele apresenta.",
+        "type": "multiple_choice_logic",
+        "options": [
+          { "label": "Brinca com outra criança?" },
+          { "label": "Fala com outra criança?" },
+          { "label": "Balbucia ou faz barulhos com a boca?" },
+          { "label": "Olha para outra criança?" },
+          { "label": "Sorri para outra criança?" },
+          { "label": "Primeiro fica tímido, mas depois sorri?" },
+          { "label": "Fica animado com a outra criança?" }
+        ],
+        "logic": {
+          "rule": "Se o usuário confirmar QUALQUER uma das opções (equivalente a 'Sim para qualquer um'), vá para 'final_passou'. Se negar TODAS (equivalente a 'Não para todos'), vá para 'final_falhou'."
+        }
+      },
+      "final_passou": {
+        "type": "result",
+        "outcome": "PASSOU"
+      },
+      "final_falhou": {
+        "type": "result",
+        "outcome": "FALHOU"
+      }
+    }
+  }
+},
+
+{
+  "id": 9,
+  "question": "O seu filho traz coisas para mostrar para você ou as segura para que você as veja - não para conseguir ajuda, mas apenas para compartilhar? (POR EXEMPLO, para mostrar uma flor, um bichinho de pelúcia ou um caminhão de brinquedo)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "start_node": "item_checklist",
+    "nodes": {
+      "item_checklist": {
+        "prompt": "Para entendermos melhor, seu filho costuma trazer algum dos itens a seguir para você?",
+        "type": "multiple_choice_logic",
+        "options": [
+          { "label": "Uma figura ou brinquedo para mostrar para você?" },
+          { "label": "Um desenho que ele fez?" },
+          { "label": "Uma flor que ele pegou?" },
+          { "label": "Um bichinho que ele encontrou no chão?" },
+          { "label": "Algumas peças que ele juntou?" },
+          { "label": "Outro item (descrever)" }
+        ],
+        "logic": {
+          "rule": "Se o usuário não selecionar NENHUMA opção (equivalente a 'Não para todos'), vá para 'final_falhou'. Se selecionar QUALQUER opção (equivalente a 'Sim para qualquer um'), vá para 'ask_intent'."
+        }
+      },
+      "ask_intent": {
+        "prompt": "E quando ele faz isso, é só para mostrar a você e não para pedir ajuda?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim, é apenas para compartilhar", "next_node": "final_passou" },
+          { "label": "Não, geralmente é para pedir ajuda", "next_node": "final_falhou" }
+        ]
+      },
+      "final_passou": {
+        "type": "result",
+        "outcome": "PASSOU"
+      },
+      "final_falhou": {
+        "type": "result",
+        "outcome": "FALHOU"
+      }
+    }
+  }
+},
+
+{
+  "id": 10,
+  "question": "O seu filho responde quando você o chama pelo nome? (POR EXEMPLO, ele olha para você, fala ou emite algum som, ou para o que está fazendo quando você o chama pelo nome?)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "interview_prompt": "Para entendermos melhor como seu filho responde ao ser chamado pelo nome (quando não está ocupado com algo divertido), por favor, marque todos os comportamentos que ele costuma apresentar.",
+    "exemplos_passou": [
+      { "id": "p1", "label": "Procura?" },
+      { "id": "p2", "label": "Fala ou emite algum som?" },
+      { "id": "p3", "label": "Para o que está fazendo?" }
+    ],
+    "exemplos_falhou": [
+      { "id": "f1", "label": "Não dá nenhuma resposta?" },
+      { "id": "f2", "label": "Parece ouvir mas ignora a pessoa?" },
+      { "id": "f3", "label": "Só responde se a pessoa estiver bem na sua frente?" },
+      { "id": "f4", "label": "Só responde se for tocado?" }
+    ],
+    "tiebreaker": {
+      "prompt": "O que ele faz com mais frequência?",
+      "options": [
+        { "label": "As respostas de PASSOU", "outcome": "PASSOU" },
+        { "label": "As respostas de FALHOU", "outcome": "FALHOU" }
+      ]
+    }
+  }
+},
+
+{
+  "id": 11,
+  "question": "Quando você sorri para o seu filho, ele sorri de volta para você?",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_sim": {
+      "outcome": "PASSOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Sim' para esta pergunta resulta em PASSOU na consulta de seguimento."
+      }
+    },
+    "on_nao": {
+      "interview_prompt": "Para entendermos melhor o que faz seu filho sorrir, por favor, marque todos os comportamentos que ele costuma apresentar.",
+      "exemplos_passou": [
+        { "id": "p1", "label": "Sorri quando você sorri?" },
+        { "id": "p2", "label": "Sorri quando você entra no quarto?" },
+        { "id": "p3", "label": "Sorri quando você volta depois de ter estado fora de casa?" }
+      ],
+      "exemplos_falhou": [
+        { "id": "f1", "label": "Está sempre sorrindo?" },
+        { "id": "f2", "label": "Sorri para um brinquedo ou atividade favorita?" },
+        { "id": "f3", "label": "Sorri ao acaso ou sem nenhum motivo especial?" }
+      ],
+      "tiebreaker": {
+        "prompt": "O que é que ele faz com mais frequência?",
+        "options": [
+          { "label": "As respostas de PASSOU", "outcome": "PASSOU" },
+          { "label": "As respostas de FALHOU", "outcome": "FALHOU" }
+        ]
+      },
+      "logic": {
+        "rule": "Se o usuário selecionar apenas exemplos da lista 'passou', o resultado é PASSOU. Se selecionar apenas exemplos da lista 'falhou', o resultado é FALHOU. Se selecionar exemplos de ambas as listas, prossiga para o 'tiebreaker'."
+      }
+    }
+  }
+},
+
+{
+  "id": 12,
+  "question": "O seu filho fica muito incomodado com barulhos do dia a dia? (POR EXEMPLO, seu filho grita ou chora ao ouvir barulhos como os de liquidificador ou de música alta?)",
+  "scoring_risk_on": "Sim",
+  "follow_up": {
+    "on_nao": {
+      "outcome": "PASSOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Não' para esta pergunta resulta em PASSOU na consulta de seguimento."
+      }
+    },
+    "on_sim": {
+      "start_node": "noise_checklist",
+      "nodes": {
+        "noise_checklist": {
+          "prompt": "A criança tem uma reação negativa ao som de algum dos itens abaixo? (Marque todos que se aplicam)",
+          "type": "multiple_choice_logic",
+          "options": [
+            { "label": "Máquina de lavar?" },
+            { "label": "Choro de bebês?" },
+            { "label": "Aspirador de pó?" },
+            { "label": "Secador de cabelo?" },
+            { "label": "Trânsito?" },
+            { "label": "Grito de bebês?" },
+            { "label": "Música alta?" },
+            { "label": "Toque do telefone/campainha?" },
+            { "label": "Barulho de liquidificador?" },
+            { "label": "Lugares barulhentos como supermercado ou restaurante?" },
+            { "label": "Outro (descrever)" }
+          ],
+          "logic": {
+            "rule": "Se o usuário selecionar MENOS DE DOIS itens, vá para 'final_passou'. Se selecionar DOIS OU MAIS, vá para 'reaction_checklist'."
+          }
+        },
+        "reaction_checklist": {
+          "prompt": "Como ele reage a esses barulhos? Por favor, marque todos os comportamentos que ele apresenta.",
+          "type": "unified_logic",
+          "exemplos_passou": [
+            { "id": "p1", "label": "Tampa os ouvidos calmamente?" },
+            { "id": "p2", "label": "Diz a você que não gosta de barulho?" }
+          ],
+          "exemplos_falhou": [
+            { "id": "f1", "label": "Grita?" },
+            { "id": "f2", "label": "Chora?" },
+            { "id": "f3", "label": "Tampa os ouvidos? (de forma aflita)" }
+          ],
+          "tiebreaker": {
+            "prompt": "Qual destes ele faz mais frequentemente?",
+            "options": [
+              { "label": "As respostas de PASSOU", "outcome": "PASSOU" },
+              { "label": "As respostas de FALHOU", "outcome": "FALHOU" }
+            ]
+          },
+          "logic": {
+            "rule": "Se o usuário selecionar apenas exemplos da lista 'passou', o resultado é PASSOU. Se selecionar apenas exemplos da lista 'falhou', o resultado é FALHOU. Se selecionar exemplos de ambas as listas, prossiga para o 'tiebreaker'."
+          }
+        },
+        "final_passou": {
+          "type": "result",
+          "outcome": "PASSOU"
+        },
+        "final_falhou": {
+          "type": "result",
+          "outcome": "FALHOU"
+        }
+      }
+    }
+  }
+},
+
+{
+  "id": 13,
+  "question": "O seu filho anda?",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_nao": {
+      "outcome": "FALHOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Não' para esta pergunta resulta em FALHOU na consulta de seguimento."
+      }
+    },
+    "on_sim": {
+      "prompt": "Ele(a) anda sem se segurar ou sem se apoiar em algo?",
+      "type": "single_choice",
+      "options": [
+        { "label": "Sim", "outcome": "PASSOU" },
+        { "label": "Não", "outcome": "FALHOU" }
+      ],
+      "logic": {
+        "rule": "A resposta a esta pergunta determina diretamente o resultado final."
+      }
+    }
+  }
+},
+
+{
+  "id": 14,
+  "question": "O seu filho olha nos seus olhos quando você está falando ou brincando com ele/ela, ou vestindo a roupa dele/dela?",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "start_node": "initial_decision",
+    "nodes": {
+      "initial_decision": {
+        "type": "logic_gate",
+        "rule": "Baseado na resposta inicial do M-CHAT-R, vá para 'sim_path_start' ou 'nao_path_start'."
+      },
+      "sim_path_start": {
+        "prompt": "Você respondeu 'Sim'. Por favor, pode nos dar um exemplo de uma situação em que ele olha nos seus olhos?",
+        "type": "open_ended_validation",
+        "next_node": "situation_checklist",
+        "logic": {
+            "rule": "Esta etapa serve para validar a resposta 'Sim'. Após o usuário descrever o exemplo ou se não conseguir, o fluxo continua para a verificação detalhada no 'situation_checklist' para garantir a consistência."
+        }
+      },
+      "nao_path_start": {
+        "type": "logic_gate",
+        "next_node": "situation_checklist",
+        "rule": "A resposta inicial 'Não' leva diretamente para a lista de verificação de situações."
+      },
+      "situation_checklist": {
+        "prompt": "Para entendermos melhor, em quais das situações a seguir ele olha nos seus olhos? (Por favor, selecione todas as aplicáveis)",
+        "type": "multiple_choice_logic",
+        "options": [
+          { "label": "Quando ele precisa de alguma coisa?" },
+          { "label": "Quando você está brincando com ele?" },
+          { "label": "Durante as alimentações?" },
+          { "label": "Durante a troca das fraldas?" },
+          { "label": "Quando você está lendo uma história para ele?" },
+          { "label": "Quando você está falando com ele?" }
+        ],
+        "logic": {
+          "rule": "Conte o número de opções selecionadas. Se for 0 ('Não para todas'), vá para 'final_falhou'. Se for apenas uma, vá para 'daily_check' se for duas ou mais, 'final_passou'."
+        }
+      },
+      "daily_check": {
+        "prompt": "Seu filho olha nos seus olhos todos os dias?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "next_node": "five_times_check" },
+          { "label": "Não", "next_node": "final_falhou" }
+        ]
+      },
+      "five_times_check": {
+        "prompt": "Nos dias em que vocês estão juntos o dia todo, ele olha no seus olhos pelo menos 5 vezes?",
+        "type": "single_choice",
+        "options": [
+          { "label": "Sim", "next_node": "final_passou" },
+          { "label": "Não", "next_node": "final_falhou" }
+        ]
+      },
+      "final_passou": {
+        "type": "result",
+        "outcome": "PASSOU"
+      },
+      "final_falhou": {
+        "type": "result",
+        "outcome": "FALHOU"
+      }
+    }
+  }
+},
+
+{
+  "id": 15,
+  "question": "O seu filho tenta imitar o que você faz? (POR EXEMPLO, quando você dá tchau, ou bate palmas, ou joga um beijo, ele repete o que você faz?)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "interview_prompt": "Para entendermos melhor a imitação, se você fizer alguma das ações abaixo, seu filho tenta lhe copiar? (Marque todas as opções que se aplicam)",
+    "type": "multiple_choice_logic",
+    "options": [
+      { "id": "o1", "label": "Põe a língua para fora?" },
+      { "id": "o2", "label": "Faz um som engraçado?" },
+      { "id": "o3", "label": "Dá tchau?" },
+      { "id": "o4", "label": "Bate palmas?" },
+      { "id": "o5", "label": "Coloca os dedos nos seus lábios para sinalizar 'Xiii'?" },
+      { "id": "o6", "label": "Manda um beijo?" },
+      { "id": "o7", "label": "Outro (descrever)" }
+    ],
+    "logic": {
+      "rule": "Conte o número de opções selecionadas. Se a contagem for 2 ou mais ('Sim, para dois ou mais'), o resultado é PASSOU. Se a contagem for 1 ou 0 ('Sim, para um ou nenhum'), o resultado é FALHOU."
+    }
+  }
+},
+
+{
+  "id": 16,
+  "question": "Se você vira a cabeça para olhar para alguma coisa, o seu filho olha ao redor para ver o que você está olhando?",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_sim": {
+      "outcome": "PASSOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Sim' para esta pergunta resulta em PASSOU na consulta de seguimento."
+      }
+    },
+    "on_nao": {
+      "interview_prompt": "O que seu filho faz quando você se vira para olhar para alguma coisa? Por favor, marque todos os comportamentos que ele apresenta.",
+      "exemplos_passou": [
+        { "id": "p1", "label": "Olha para o que você está olhando?" },
+        { "id": "p2", "label": "Aponta para o que você está olhando?" },
+        { "id": "p3", "label": "Olha ao redor para ver o que você está olhando?" }
+      ],
+      "exemplos_falhou": [
+        { "id": "f1", "label": "Não repara em você?" },
+        { "id": "f2", "label": "Olha para o seu rosto?" }
+      ],
+      "tiebreaker": {
+        "prompt": "Qual das respostas é que ele faz na maioria das vezes?",
+        "options": [
+          { "label": "As respostas de PASSOU", "outcome": "PASSOU" },
+          { "label": "As respostas de FALHOU", "outcome": "FALHOU" }
+        ]
+      },
+      "logic": {
+        "rule": "Se o usuário selecionar apenas exemplos da lista 'passou', o resultado é PASSOU. Se selecionar apenas exemplos da lista 'falhou', o resultado é FALHOU. Se selecionar exemplos de ambas as listas, prossiga para o 'tiebreaker'."
+      }
+    }
+  }
+},
+
+{
+  "id": 17,
+  "question": "O seu filho tenta fazer você olhar para ele/ela? (POR EXEMPLO, o seu filho olha para você para ser elogiado/aplaudido, ou diz: 'olha mãe!' ou 'óh mãe!')",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "interview_prompt": "Para entendermos melhor, como ele tenta fazer com que você olhe para ele/ela? Por favor, selecione todos os comportamentos que ele apresenta.",
+    "type": "multiple_choice_logic",
+    "exemplos_passou": [
+      { "id": "p1", "label": "Diz 'Olha!' ou 'Olha para mim!'?" },
+      { "id": "p2", "label": "Emite algum som ou faz barulho para você olhar o que ele está fazendo?" },
+      { "id": "p3", "label": "Olha para você, para ganhar elogio ou comentário?" },
+      { "id": "p4", "label": "Continua olhando para ver se você está olhando?" },
+      { "id": "p5", "label": "Outro (descrever)" }
+    ],
+    "logic": {
+      "rule": "Se o usuário confirmar QUALQUER um dos exemplos (equivalente a 'Sim para qualquer um'), o resultado é PASSOU. Se negar TODOS (equivalente a 'Sim para nenhum'), o resultado é FALHOU."
+    }
+  }
+},
+
+{
+  "id": 18,
+  "question": "O seu filho compreende quando você pede para ele/ela fazer alguma coisa? (POR EXEMPLO, se você não apontar, o seu filho entende quando você pede: 'coloca o copo na mesa' ou 'liga a televisão')?",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_sim": {
+      "start_node": "sim_path_start",
+      "nodes": {
+        "sim_path_start": {
+          "prompt": "Você respondeu 'Sim'. O exemplo que você pensou envolve alguma dica contextual ou gestual (como você apontar, ou já estar se vestindo para sair)?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Não, ele entendeu a ordem sem nenhuma dica.", "next_node": "final_passou" },
+            { "label": "Sim, o exemplo que pensei tinha alguma dica.", "next_node": "no_cues_checklist" }
+          ]
+        }
+      }
+    },
+    "on_nao": {
+      "start_node": "nao_path_start",
+      "nodes": {
+        "nao_path_start": {
+          "prompt": "Quando ele/ela tem uma dica, ele consegue seguir a ordem? Por exemplo, quando você está vestido para sair e diz a ele para pegar o seu sapato, ele entende?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "next_node": "no_cues_checklist" },
+            { "label": "Não", "next_node": "dinnertime_check" }
+          ]
+        },
+        "dinnertime_check": {
+          "prompt": "Se é hora do jantar, a comida está na mesa, e você diz ao seu filho para se sentar, ele se senta à mesa?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "next_node": "no_cues_checklist" },
+            { "label": "Não", "next_node": "final_falhou" }
+          ]
+        }
+      }
+    },
+    "nodes": {
+      "no_cues_checklist": {
+        "prompt": "Quando a situação não dá nenhuma dica, ele consegue seguir uma ordem? Por favor, confirme se ele entende alguma das ordens abaixo (sem apontar ou fazer gestos).",
+        "type": "multiple_choice_logic",
+        "options": [
+          { "label": "Se você diz: 'Me mostre o seu sapato', ele mostra o sapato?" },
+          { "label": "Se você diz: 'Me traz o cobertor', ele traz para você?" },
+          { "label": "Se você diz: 'Põe o livro na cadeira', ele coloca o livro na cadeira?" }
+        ],
+        "logic": {
+          "rule": "Se o usuário confirmar QUALQUER uma das opções ('Sim para qualquer uma'), vá para 'final_passou'. Se negar TODAS ('Não para todas'), vá para 'final_falhou'."
+        }
+      },
+      "final_passou": { "type": "result", "outcome": "PASSOU" },
+      "final_falhou": { "type": "result", "outcome": "FALHOU" }
+    }
+  }
+},
+
+{
+  "id": 19,
+  "question": "Quando acontece algo novo, o seu filho olha para o seu rosto para ver como você se sente sobre o que aconteceu? (POR EXEMPLO, se ele/ela ouve um barulho estranho ou vê algo engraçado, ou vê um brinquedo novo, será que ele/ela olharia para seu rosto?)",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_sim": {
+      "outcome": "PASSOU",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Sim' para esta pergunta resulta em PASSOU na consulta de seguimento."
+      }
+    },
+    "on_nao": {
+      "start_node": "startling_noise_check",
+      "nodes": {
+        "startling_noise_check": {
+          "prompt": "Se o seu filho ouve um barulho estranho ou assustador, ele olha para você, antes de responder?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "next_node": "final_passou" },
+            { "label": "Não", "next_node": "stranger_check" }
+          ]
+        },
+        "stranger_check": {
+          "prompt": "O seu filho olha para você quando uma pessoa estranha se aproxima?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "next_node": "final_passou" },
+            { "label": "Não", "next_node": "scary_thing_check" }
+          ]
+        },
+        "scary_thing_check": {
+          "prompt": "Seu filho olha para você quando ele vê algo não familiar ou que dá um pouco de medo?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "next_node": "final_passou" },
+            { "label": "Não", "next_node": "final_falhou" }
+          ]
+        },
+        "final_passou": {
+          "type": "result",
+          "outcome": "PASSOU"
+        },
+        "final_falhou": {
+          "type": "result",
+          "outcome": "FALHOU"
+        }
+      }
+    }
+  }
+},
+
+{
+  "id": 20,
+  "question": "O seu filho gosta de atividades de movimento? (POR EXEMPLO, ser balançado ou pular em seus joelhos).",
+  "scoring_risk_on": "Não",
+  "follow_up": {
+    "on_nao": {
+      "start_node": "reaction_checklist",
+      "logic": {
+        "rule": "De acordo com o fluxograma, uma resposta inicial 'Não' leva diretamente para a verificação de reações."
+      }
+    },
+    "on_sim": {
+      "start_node": "clarification_check",
+      "nodes": {
+        "clarification_check": {
+          "prompt": "Ele gosta quando alguém o faz pular ou balançar?",
+          "type": "single_choice",
+          "options": [
+            { "label": "Sim", "next_node": "final_passou" },
+            { "label": "Não", "next_node": "reaction_checklist" }
+          ]
+        }
+      }
+    },
+    "nodes": {
+      "reaction_checklist": {
+        "prompt": "Quando você balança ou joga ele para o alto, como ele reage? (Selecione todas as opções aplicáveis)",
+        "type": "multiple_choice_logic",
+        "options": [
+          { "label": "Ri ou dá gargalhadas?" },
+          { "label": "Fala ou emite algum som?" },
+          { "label": "Pede mais, esticando seus braços?" },
+          { "label": "Outro (descrever)" }
+        ],
+        "logic": {
+          "rule": "Se o usuário confirmar QUALQUER uma das reações ('Sim para qualquer exemplo'), o resultado é PASSOU. Se negar TODAS ('Não para todos'), o resultado é FALHOU."
+        }
+      },
+      "final_passou": {
+        "type": "result",
+        "outcome": "PASSOU"
+      },
+      "final_falhou": {
+        "type": "result",
+        "outcome": "FALHOU"
+      }
+    }
+  }
+}
+]
