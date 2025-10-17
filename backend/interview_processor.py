@@ -351,6 +351,285 @@ class InterviewProcessor:
             )
 
         return BotResponse(session_id=session_id, text="Houve um erro no fluxo.", is_item_finished=True, outcome="FALHOU")
+    def process_question_7(self, session_id, session_state, user_answer):
+        node = session_state.current_node_id
+        logic_data = self.questions[7]['follow_up']
+        nodes = logic_data['nodes']
+
+        # 1. Início da entrevista para o item 7
+        if user_answer == "":
+            session_state.current_node_id = "awaiting_intro"
+            return BotResponse(
+                session_id=session_id,
+                text=logic_data['intro_text'],
+                response_type="single_choice",
+                options=[Option(id="sim", label="Sim"), Option(id="nao", label="Não")]
+            )
+
+        # 2. Resposta à pergunta introdutória
+        if node == "awaiting_intro":
+            if user_answer.lower() == "sim":
+                # O 'sim_path' é um pass-through, então vamos direto para 'ask_how_attention_is_called'
+                session_state.current_node_id = "awaiting_attention_call_method"
+                attention_node = nodes['ask_how_attention_is_called']
+                return BotResponse(
+                    session_id=session_id,
+                    text=attention_node['prompt'],
+                    response_type="single_choice",
+                    options=[Option(id="sim", label="Sim"), Option(id="nao", label="Não")]
+                )
+            else: # Resposta foi "Não"
+                session_state.current_node_id = "awaiting_nao_path_examples"
+                nao_path_node = nodes['nao_path']
+                options = [Option(id=f"opt{i+1}", label=opt['label']) for i, opt in enumerate(nao_path_node['options'])]
+                return BotResponse(
+                    session_id=session_id,
+                    text=nao_path_node['prompt'],
+                    response_type="multiple_choice",
+                    options=options
+                )
+
+        # 3. Resposta aos exemplos do caminho "Não"
+        if node == "awaiting_nao_path_examples":
+            if not user_answer: # Se não selecionou nada, falhou
+                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="FALHOU")
+            else: # Se selecionou algo, avança
+                session_state.current_node_id = "awaiting_attention_call_method"
+                attention_node = nodes['ask_how_attention_is_called']
+                return BotResponse(
+                    session_id=session_id,
+                    text=attention_node['prompt'],
+                    response_type="single_choice",
+                    options=[Option(id="sim", label="Sim"), Option(id="nao", label="Não")]
+                )
+
+        # 4. Resposta sobre como chama a atenção
+        if node == "awaiting_attention_call_method":
+            session_state.current_node_id = "awaiting_pointing_purpose"
+            purpose_node = nodes['ask_pointing_purpose']
+            options = [
+                Option(id="both", label=purpose_node['options'][0]['label']),
+                Option(id="help_only", label=purpose_node['options'][1]['label'])
+            ]
+            return BotResponse(
+                session_id=session_id,
+                text=purpose_node['prompt'],
+                response_type="single_choice",
+                options=options
+            )
+
+        # 5. Resposta final sobre o propósito de apontar
+        if node == "awaiting_pointing_purpose":
+            outcome = "PASSOU" if user_answer.lower() == "both" else "FALHOU"
+            return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome=outcome)
+
+
+        return BotResponse(session_id=session_id, text="Houve um erro no fluxo da pergunta 7.", is_item_finished=True, outcome="FALHOU")
+    
+    def process_question_8(self, session_id, session_state, user_answer):
+        node = session_state.current_node_id
+        logic_data = self.questions[8]['follow_up']
+        nodes = logic_data['nodes']
+        initial_answer = session_state.answers.get(str(8), "").lower()
+
+        # 1. Início da entrevista para o item 8
+        if user_answer == "":
+            if initial_answer == 'sim':
+                session_state.current_node_id = "awaiting_sim_path_start"
+                node_data = nodes['sim_path_start']
+                return BotResponse(
+                    session_id=session_id, text=node_data['prompt'], response_type="single_choice",
+                    options=[Option(id="sim", label="Sim"), Option(id="nao", label="Não")]
+                )
+            else: # initial_answer == 'não'
+                session_state.current_node_id = "awaiting_nao_path_start"
+                node_data = nodes['nao_path_start']
+                return BotResponse(
+                    session_id=session_id, text=node_data['prompt'], response_type="single_choice",
+                    options=[Option(id="sim", label="Sim"), Option(id="nao", label="Não")]
+                )
+
+        # 2. Caminho do "Sim" inicial
+        if node == "awaiting_sim_path_start":
+            if user_answer.lower() == "sim":
+                return BotResponse(session_id=session_id, text="Ok.", is_item_finished=True, outcome="PASSOU")
+            else: # "Não"
+                session_state.current_node_id = "awaiting_central_checklist"
+                node_data = nodes['central_checklist']
+                options = [Option(id=f"opt{i+1}", label=opt['label']) for i, opt in enumerate(node_data['options'])]
+                options.append(Option(id="none", label="Nenhuma das opções"))
+                return BotResponse(session_id=session_id, text=node_data['prompt'], response_type="multiple_choice", options=options)
+
+        # 3. Caminho do "Não" inicial
+        if node == "awaiting_nao_path_start":
+            if user_answer.lower() == "sim":
+                session_state.current_node_id = "awaiting_nao_freq_check"
+                node_data = nodes['nao_path_frequency_check']
+                return BotResponse(session_id=session_id, text=node_data['prompt'], response_type="single_choice", options=[Option(id="sim", label="Sim"), Option(id="nao", label="Não")])
+            else: # "Não"
+                session_state.current_node_id = "awaiting_central_checklist"
+                node_data = nodes['central_checklist']
+                options = [Option(id=f"opt{i+1}", label=opt['label']) for i, opt in enumerate(node_data['options'])]
+                options.append(Option(id="none", label="Nenhuma das opções"))
+                return BotResponse(session_id=session_id, text=node_data['prompt'], response_type="multiple_choice", options=options)
+
+        # 4. Verificação de frequência do caminho "Não"
+        if node == "awaiting_nao_freq_check":
+            outcome = "PASSOU" if user_answer.lower() == "sim" else "FALHOU"
+            return BotResponse(session_id=session_id, text="Ok.", is_item_finished=True, outcome=outcome)
+
+        # 5. Lista de verificação central (para onde vários caminhos levam)
+        if node == "awaiting_central_checklist":
+            user_selections = {item.strip().lower() for item in user_answer.split(',')}
+            if "none" in user_selections or not user_answer:
+                outcome = "FALHOU"
+            else:
+                outcome = "PASSOU"
+            return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome=outcome)
+    def process_question_9(self, session_id, session_state, user_answer):
+        node = session_state.current_node_id
+        logic_data = self.questions[9]['follow_up']
+        nodes = logic_data['nodes']
+
+        # 1. Início da entrevista: Apresenta a lista de itens
+        if user_answer == "":
+            session_state.current_node_id = "awaiting_checklist"
+            node_data = nodes['item_checklist']
+            options = [Option(id=f"opt{i+1}", label=opt['label']) for i, opt in enumerate(node_data['options'])]
+            options.append(Option(id="none", label="Nenhuma das opções"))
+            return BotResponse(
+                session_id=session_id,
+                text=node_data['prompt'],
+                response_type="multiple_choice",
+                options=options
+            )
+
+        # 2. Analisa a seleção da lista de itens
+        if node == "awaiting_checklist":
+            user_selections = {item.strip().lower() for item in user_answer.split(',')}
+            if "none" in user_selections or not user_answer:
+                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="FALHOU")
+            else:
+                # Se selecionou algum item, avança para a pergunta de intenção
+                session_state.current_node_id = "awaiting_intent"
+                node_data = nodes['ask_intent']
+                options = [
+                    Option(id="share", label=node_data['options'][0]['label']),
+                    Option(id="help", label=node_data['options'][1]['label'])
+                ]
+                return BotResponse(
+                    session_id=session_id,
+                    text=node_data['prompt'],
+                    response_type="single_choice",
+                    options=options
+                )
+        
+        # 3. Analisa a resposta sobre a intenção
+        if node == "awaiting_intent":
+            outcome = "PASSOU" if user_answer.lower() == "share" else "FALHOU"
+            return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome=outcome)
+
+        return BotResponse(session_id=session_id, text="Houve um erro no fluxo da pergunta 9.", is_item_finished=True, outcome="FALHOU")
+    def process_question_10(self, session_id, session_state, user_answer):
+        node = session_state.current_node_id
+        logic_data = self.questions[10]['follow_up']
+
+        if user_answer == "":
+            session_state.current_node_id = "analysis"
+            all_options = [Option(id=opt['id'], label=opt['label']) for opt in logic_data["exemplos_passou"] + logic_data["exemplos_falhou"]]
+            return BotResponse(
+                session_id=session_id, text=logic_data["interview_prompt"],
+                response_type="multiple_choice", options=all_options
+            )
+
+        if node == "analysis":
+            pass_ids = {ex['id'] for ex in logic_data["exemplos_passou"]}
+            fail_ids = {ex['id'] for ex in logic_data["exemplos_falhou"]}
+            user_selections = {item.strip().lower() for item in user_answer.split(',')}
+            
+            pass_count = sum(1 for sel in user_selections if sel in pass_ids)
+            fail_count = sum(1 for sel in user_selections if sel in fail_ids)
+
+            outcome = ""
+            
+            if pass_count > 0 and fail_count == 0:
+                outcome = "PASSOU"
+            elif fail_count > 0 and pass_count == 0:
+                outcome = "FALHOU"
+            elif pass_count > 0 and fail_count > 0:
+                # Desempate automático baseado na contagem
+                outcome = "PASSOU" if pass_count > fail_count else "FALHOU"
+            else: # Nenhuma opção válida, pergunta novamente
+                session_state.current_node_id = None
+                return self.process_question_10(session_id, session_state, "")
+
+            return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome=outcome)
+        
+        return BotResponse(session_id=session_id, text="Houve um erro no fluxo.", is_item_finished=True, outcome="FALHOU")
+    def process_question_11(self, session_id, session_state, user_answer):
+        node = session_state.current_node_id
+        logic_data = self.questions[11]['follow_up']
+        initial_answer = session_state.answers.get(str(11), "").lower()
+
+        if initial_answer == "sim":
+            return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="PASSOU")
+
+        # Início da entrevista para o caminho "Não"
+        if user_answer == "":
+            session_state.current_node_id = "analysis"
+            on_nao_logic = logic_data["on_nao"]
+            all_options = [Option(**opt) for opt in on_nao_logic["exemplos_passou"] + on_nao_logic["exemplos_falhou"]]
+            return BotResponse(
+                session_id=session_id,
+                text=on_nao_logic["interview_prompt"],
+                response_type="multiple_choice",
+                options=all_options
+            )
+
+        if node == "analysis":
+            on_nao_logic = logic_data["on_nao"]
+            pass_ids = {ex['id'] for ex in on_nao_logic["exemplos_passou"]}
+            fail_ids = {ex['id'] for ex in on_nao_logic["exemplos_falhou"]}
+            user_selections = {item.strip().lower() for item in user_answer.split(',')}
+            has_pass = any(sel in pass_ids for sel in user_selections)
+            has_fail = any(sel in fail_ids for sel in user_selections)
+
+            if has_pass and not has_fail:
+                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="PASSOU")
+            elif not has_pass and has_fail:
+                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="FALHOU")
+            elif has_pass and has_fail:
+                session_state.current_node_id = "tiebreaker"
+                tiebreaker_logic = on_nao_logic["tiebreaker"]
+                
+                # Junta os labels para criar as duas opções
+                pass_labels = "; ".join([opt['label'] for opt in on_nao_logic["exemplos_passou"]])
+                fail_labels = "; ".join([opt['label'] for opt in on_nao_logic["exemplos_falhou"]])
+                
+                options = [
+                    Option(id="passou_freq", label=pass_labels),
+                    Option(id="falhou_freq", label=fail_labels)
+                ]
+                return BotResponse(
+                    session_id=session_id,
+                    text=tiebreaker_logic["prompt"],
+                    response_type="single_choice",
+                    options=options
+                )
+            else:
+                session_state.current_node_id = None
+                return self.process_question_11(session_id, session_state, "")
+
+        if node == "tiebreaker":
+            outcome = "PASSOU" if user_answer.lower() == "passou_freq" else "FALHOU"
+            return BotResponse(
+                session_id=session_id,
+                text="Ok, obrigado pela clarificação.",
+                is_item_finished=True,
+                outcome=outcome
+            )
+
+        return BotResponse(session_id=session_id, text="Houve um erro no fluxo.", is_item_finished=True, outcome="FALHOU")
     
     def process_not_implemented(self, session_id, session_state):
         q_id = session_state.follow_up_needed[session_state.current_follow_up_index]
@@ -361,16 +640,6 @@ class InterviewProcessor:
             outcome="FALHOU"
         )
 
-    def process_question_7(self, session_id, session_state, user_answer):
-        return self.process_not_implemented(session_id, session_state)
-    def process_question_8(self, session_id, session_state, user_answer):
-        return self.process_not_implemented(session_id, session_state)
-    def process_question_9(self, session_id, session_state, user_answer):
-        return self.process_not_implemented(session_id, session_state)
-    def process_question_10(self, session_id, session_state, user_answer):
-        return self.process_not_implemented(session_id, session_state)
-    def process_question_11(self, session_id, session_state, user_answer):
-        return self.process_not_implemented(session_id, session_state)
     def process_question_12(self, session_id, session_state, user_answer):
         return self.process_not_implemented(session_id, session_state)
     def process_question_13(self, session_id, session_state, user_answer):
