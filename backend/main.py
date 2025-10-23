@@ -1,9 +1,8 @@
-# backend/main.py
-
 import json
 from fastapi import FastAPI
-from models import UserMessage, SessionState, BotResponse
-from interview_processor import InterviewProcessor # Importa a classe correta
+# Lembre-se de garantir que o models.py tem os campos para o follow-up
+from models import UserMessage, SessionState, BotResponse 
+from interview_processor import InterviewProcessor # Importa a nova classe
 
 # --- Configuração Inicial ---
 app = FastAPI()
@@ -16,11 +15,10 @@ except FileNotFoundError:
     questions = []
 
 sessions = {}
-# Cria uma única instância do processador de entrevistas para ser usada pela API
+# Cria uma única instância do nosso processador de entrevistas
 interview_processor = InterviewProcessor(questions)
 
 # --- Endpoints da API ---
-
 @app.get("/")
 def read_root():
     return {"status": "API do Chatbot M-CHAT-R está online"}
@@ -46,10 +44,33 @@ def handle_chat(user_message: UserMessage):
     
     # 3. Lógica de Follow-up (se aplicável)
     if current_state.in_follow_up:
-        # A classe processadora agora cuida de tudo: estado, navegação e construção da resposta.
+        
+        # --- CORREÇÃO IMPORTANTE ---
+        # Verifica se a entrevista de seguimento JÁ terminou.
+        if current_state.current_follow_up_index >= len(current_state.follow_up_needed):
+            return BotResponse(
+                session_id=session_id,
+                text="Entrevista de seguimento concluída! O resultado final será calculado.",
+                end_of_form=True
+            )
+        # --- FIM DA CORREÇÃO ---
+
+        # --- LÓGICA DO DESPACHANTE ---
+        
+        # Delega todo o trabalho para a classe processadora
+        # (Esta chamada agora é segura, pois verificámos o índice acima)
         return interview_processor.process_interview(session_id, current_state, user_message.text)
         
     # 4. Se não estamos em follow-up, continuamos o questionário principal
+    
+    # Proteção para caso o formulário principal já tenha terminado
+    if current_state.current_question_id > 20:
+        return BotResponse(
+            session_id=session_id,
+            text=f"O questionário já foi concluído. Pontuação: {current_state.score}.",
+            end_of_form=True
+        )
+
     current_question_index = current_state.current_question_id - 1
     
     # Bloco de lógica de pontuação
@@ -69,29 +90,37 @@ def handle_chat(user_message: UserMessage):
     next_question_id = current_state.current_question_id
 
     if next_question_id > 20:
-        # Fim do questionário principal: LÓGICA DE DECISÃO
+        # Fim do questionário principal: AGORA A LÓGICA DE DECISÃO É EXECUTADA
         score = current_state.score
         disclaimer = "\n\nLembre-se: esta é uma ferramenta de triagem e não um diagnóstico. Os resultados devem ser discutidos com um pediatra ou profissional de saúde qualificado."
 
         if score <= 2:
-            response_text = f"Triagem finalizada. Pontuação: {score} (Baixo Risco). Nenhuma outra avaliação é requerida no momento." + disclaimer
-            return BotResponse(session_id=session_id, text=response_text, score=score, end_of_form=True)
-
+            response_text = (f"Triagem finalizada. Pontuação: {score} (Baixo Risco). "
+                           f"Nenhuma outra avaliação é requerida no momento, a menos que a evolução clínica indique algum risco de TEA.")
+            response_text += disclaimer
+            return BotResponse(session_id=session_id, text=response_text, end_of_form=True, score=score)
+            
         elif score >= 8:
-            response_text = f"Triagem finalizada. Pontuação: {score} (Risco Elevado). É recomendado encaminhamento imediato para avaliação diagnóstica." + disclaimer
-            return BotResponse(session_id=session_id, text=response_text, score=score, end_of_form=True)
-
+            response_text = (f"Triagem finalizada. Pontuação: {score} (Risco Elevado). "
+                           f"É recomendado que a criança seja encaminhada imediatamente para uma avaliação diagnóstica e intervenção precoce.")
+            response_text += disclaimer
+            return BotResponse(session_id=session_id, text=response_text, end_of_form=True, score=score)
+            
         else: # Risco Médio (3 a 7)
             if not current_state.follow_up_needed:
-                 response_text = f"Triagem finalizada. Pontuação: {score} (Risco Médio), mas nenhuma resposta de risco foi identificada para seguimento. Recomenda-se vigilância." + disclaimer
-                 return BotResponse(session_id=session_id, text=response_text, score=score, end_of_form=True)
-
+                 # Se o score é médio mas nenhuma pergunta DE FATO precisa de follow-up (raro, mas possível)
+                 response_text = (f"Triagem finalizada. Pontuação: {score} (Risco Médio). "
+                                f"Nenhuma das respostas se qualifica para a entrevista de seguimento. Recomenda-se vigilância.")
+                 response_text += disclaimer
+                 return BotResponse(session_id=session_id, text=response_text, end_of_form=True, score=score)
+            
+            # ATIVA O ESTADO DE FOLLOW-UP
             current_state.in_follow_up = True
             current_state.current_follow_up_index = 0
             
-            # Chama o processador para a primeira pergunta da entrevista
-            # Passamos uma resposta vazia para sinalizar o início da primeira entrevista
+            # Chama o processador de entrevista PELA PRIMEIRA VEZ (com resposta vazia)
             return interview_processor.process_interview(session_id, current_state, "")
+            
     else:
         # Ainda estamos no questionário principal, envia a próxima pergunta
         next_question_index = next_question_id - 1
@@ -101,5 +130,4 @@ def handle_chat(user_message: UserMessage):
             session_id=session_id,
             text=f"{next_question_id}. {next_question_text}"
         )
-
 
