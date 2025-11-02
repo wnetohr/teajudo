@@ -59,8 +59,23 @@ class InterviewProcessor:
             session_state.current_node_id = None 
 
             if session_state.current_follow_up_index >= len(session_state.follow_up_needed):
-                response.text += "\n\nEntrevista de seguimento concluída! O resultado final será calculado."
+                # Marca fim de formulário e calcula a recomendação final baseada na pontuação
+                score = session_state.score
+                disclaimer = "\n\nLembre-se: esta é uma ferramenta de triagem e não um diagnóstico. Os resultados devem ser discutidos com um pediatra ou profissional de saúde qualificado."
+
+                if score <= 2:
+                    final_text = (f"Entrevista de seguimento concluída! Pontuação final: {score} (Baixo Risco). "
+                                  f"Não é necessário procurar um neuropediatra neste momento.")
+                elif score >= 8:
+                    final_text = (f"Entrevista de seguimento concluída! Pontuação final: {score} (Risco Elevado). "
+                                  f"Recomenda-se procurar um neuropediatra/serviço de avaliação especializada o quanto antes.")
+                else:
+                    final_text = (f"Entrevista de seguimento concluída! Pontuação final: {score} (Risco Médio). "
+                                  f"Recomenda-se discutir os resultados com o pediatra; considerar encaminhamento para neuropediatra se houver preocupação clínica.")
+
+                response.text += "\n\n" + final_text + disclaimer
                 response.end_of_form = True
+                response.score = score
             else:
                 next_question_id = session_state.follow_up_needed[session_state.current_follow_up_index]
                 response.text += f"\n\nOk, item concluído. Envie 'continuar' para iniciar a entrevista da pergunta {next_question_id}."

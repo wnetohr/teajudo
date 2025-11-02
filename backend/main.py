@@ -48,10 +48,26 @@ def handle_chat(user_message: UserMessage):
         # --- CORREÇÃO IMPORTANTE ---
         # Verifica se a entrevista de seguimento JÁ terminou.
         if current_state.current_follow_up_index >= len(current_state.follow_up_needed):
+            # Calcula a recomendação final baseada na pontuação total
+            score = current_state.score
+            disclaimer = "\n\nLembre-se: esta é uma ferramenta de triagem e não um diagnóstico. Os resultados devem ser discutidos com um pediatra ou profissional de saúde qualificado."
+
+            if score <= 2:
+                response_text = (f"Entrevista de seguimento concluída! Pontuação final: {score} (Baixo Risco). "
+                                f"Não é necessário procurar um neuropediatra neste momento.")
+            elif score >= 8:
+                response_text = (f"Entrevista de seguimento concluída! Pontuação final: {score} (Risco Elevado). "
+                                f"Recomenda-se procurar um neuropediatra/serviço de avaliação especializada o quanto antes.")
+            else:
+                response_text = (f"Entrevista de seguimento concluída! Pontuação final: {score} (Risco Médio). "
+                                f"Recomenda-se discutir os resultados com o pediatra; considerar encaminhamento para neuropediatra se houver preocupação clínica.")
+
+            response_text += disclaimer
             return BotResponse(
                 session_id=session_id,
-                text="Entrevista de seguimento concluída! O resultado final será calculado.",
-                end_of_form=True
+                text=response_text,
+                end_of_form=True,
+                score=score
             )
         # --- FIM DA CORREÇÃO ---
 
