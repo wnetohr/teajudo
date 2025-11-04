@@ -1,11 +1,22 @@
 import json
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 # Lembre-se de garantir que o models.py tem os campos para o follow-up
 from models import UserMessage, SessionState, BotResponse 
 from interview_processor import InterviewProcessor # Importa a nova classe
 
 # --- Configuração Inicial ---
 app = FastAPI()
+
+# Durante desenvolvimento é útil habilitar CORS para que o frontend (web/emulador)
+# consiga se conectar sem bloqueios. Em produção restrinja `allow_origins`.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # <- mudar para lista de origens específicas em produção
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 try:
     with open("data/questions.json", "r", encoding="utf-8") as f:
