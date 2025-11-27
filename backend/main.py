@@ -43,7 +43,7 @@ def handle_chat(user_message: UserMessage):
         sessions[session_id] = SessionState()
         
         first_question_text = questions[0]['question']
-        intro_text = "Olá! Este é um chatbot para preencher o formulário M-CHAT-R. Responda com 'Sim' ou 'Não'. Se tiver dúvida sobre uma pergunta, digite 'dúvida'. Vamos começar."
+        intro_text = "Olá! Este é um chatbot para preencher o formulário M-CHAT-R. Responda com 'Sim' ou 'Não'. Vamos começar."
         
         return BotResponse(
             session_id=session_id,
