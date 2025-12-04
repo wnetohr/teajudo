@@ -35,7 +35,7 @@ class ResultScreen extends StatelessWidget {
                       if (response.responseType != 'text_only' && response.text.contains('\n\n')) {
                         final parts = response.text.split('\n\n');
                         if (parts.length >= 2) {
-                          return parts[0] + '\n\n' + parts[1];
+                          return '${parts[0]}\n\n${parts[1]}';
                         }
                         return parts[0];
                       }

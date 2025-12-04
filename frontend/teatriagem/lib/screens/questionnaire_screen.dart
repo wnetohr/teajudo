@@ -8,23 +8,29 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/api_models.dart'; // Importa os modelos de dados
 import 'result_screen.dart'; // Importa a tela de resultado
 
-// --- CONFIGURAÇÃO DA API ---
-// Seleciona a URL da API conforme a plataforma em que o app está rodando.
-// - Android emulator (Android Studio): 10.0.2.2 -> host machine
-// - iOS simulator: localhost -> host machine
-// - Web: localhost (mas o backend precisa permitir CORS)
-// - Dispositivo físico: use o IP da máquina (ex.: http://192.168.x.y:8000)
+// URL Base da sua API no Render
+const String _prodUrl = 'https://chatbot-mchatrf.onrender.com';
+
+// Se quiser voltar a testar localmente no futuro, apenas mude para false
+const bool isProduction = true; 
+
 String get aPIUrl {
+  if (isProduction) {
+    // Na nuvem, funciona igual para Android, iOS e Web
+    return '$_prodUrl/chat';
+  }
+
+  // --- LÓGICA ANTIGA (PARA TESTE LOCAL NO SEU PC) ---
   if (kIsWeb) {
     return 'http://localhost:8000/chat';
   }
 
-  // Platform.* is not supported on web, por isso protegemos com kIsWeb
   if (Platform.isAndroid) {
-    return 'http://10.0.2.2:8000/chat';
+    // Android Emulator
+    return 'http://10.0.2.2:8000/chat'; 
   }
 
-  // iOS simulator e outras plataformas de desktop usam localhost
+  // iOS Simulator
   return 'http://localhost:8000/chat';
 }
 

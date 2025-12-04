@@ -6,6 +6,10 @@ import '../models/api_models.dart';
 import 'dart:io' show Platform;
 import 'result_screen.dart';
 
+// Temporariamente suprime avisos de uso de membros obsoletos (Radio APIs).
+// TODO: migrar para RadioGroup quando atualizar SDK/implementação.
+// ignore_for_file: deprecated_member_use
+
 // Helper para escolher host conforme plataforma (duplica lógica do questionnaire)
 String get aPIUrl {
   if (kIsWeb) {
@@ -49,7 +53,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
     });
 
     try {
-      debugPrint('FollowUp: sending payload -> "${answer}" (session=${widget.sessionId})');
+      // removed debug prints for cleaner analyzer output
       final message = UserMessage(sessionId: widget.sessionId, text: answer);
       final response = await http.post(
         Uri.parse(aPIUrl),
@@ -82,8 +86,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           score: responseData.score,
         );
 
-        debugPrint('FollowUp: parsed responseType=${responseData.responseType}; isItemFinished=${responseData.isItemFinished}; endOfForm=${responseData.endOfForm}');
-        debugPrint('FollowUp: options -> ${responseData.options.map((o) => o.id).toList()}');
+        // parsed metadata available in responseData; debug logs removed
 
         if (responseToUse.endOfForm) {
           // Transiciona para a tela de resultado final
@@ -100,8 +103,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           // Usa a versão 'cleaned' da resposta para atualizar a UI
           _currentResponse = responseToUse;
           // DEBUG: log resposta bruta e texto
-          debugPrint('FollowUp: response status=${response.statusCode}');
-          debugPrint('FollowUp: response body (text) -> ${responseData.text}');
+          // debug prints removed
           _isLoading = false;
           _selected.clear();
           _selectedSingle = null;
