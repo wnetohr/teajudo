@@ -16,6 +16,10 @@ class AutismScreeningApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.grey[50],
+        appBarTheme: const AppBarTheme(
+          // Define the global color for the AppBar icons (back button, actions)
+          iconTheme: IconThemeData(color: Colors.blue),
+        ),
         cardTheme: CardThemeData(
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8.0),

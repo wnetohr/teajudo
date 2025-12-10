@@ -10,8 +10,14 @@ import 'result_screen.dart';
 // TODO: migrar para RadioGroup quando atualizar SDK/implementação.
 // ignore_for_file: deprecated_member_use
 
-// Helper para escolher host conforme plataforma (duplica lógica do questionnaire)
+// URL Base da API (mantém alinhado com questionnaire_screen)
+const String _prodUrl = 'https://chatbot-mchatrf.onrender.com';
+const bool isProduction = true;
+
 String get aPIUrl {
+  if (isProduction) {
+    return '$_prodUrl/chat';
+  }
   if (kIsWeb) {
     return 'http://localhost:8000/chat';
   }

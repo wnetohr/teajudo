@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'questionnaire_screen.dart'; // Importa a tela do questionário
+import 'instructions_screen.dart';
 
 // --- TELA INICIAL (HomeScreen) ---
 class HomeScreen extends StatelessWidget {
@@ -26,11 +27,11 @@ class HomeScreen extends StatelessWidget {
               Builder(builder: (ctx) {
                 final dpr = MediaQuery.of(ctx).devicePixelRatio;
                 // request a higher-res cache to improve downscaling quality
-                final cacheW = (dpr * 96 * 2).round();
+                final cacheW = (dpr * 126 * 2).round();
                 return Image.asset(
                   'lib/images/logo2.png',
-                  width: 96,
-                  height: 96,
+                  width: 126,
+                  height: 126,
                   fit: BoxFit.contain,
                   cacheWidth: cacheW,
                   filterQuality: FilterQuality.high,
@@ -73,15 +74,33 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
+
+              // Welcome text (same size as button label)
+              Builder(builder: (ctx) {
+                final welcomeStyle = Theme.of(ctx).textTheme.labelLarge;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'Olá! Um olhar atento pode mudar tudo. Boas vindas ao TEAJUDO, à sua ferramenta de apoio na triagem do autismo.',
+                    style: welcomeStyle?.copyWith(color: Colors.blue) ?? const TextStyle(color: Colors.blue),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 18),
 
               // Start button
               ElevatedButton(
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                  foregroundColor: Colors.blue,
+                ),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const QuestionnaireScreen()),
+                    MaterialPageRoute(builder: (context) => const InstructionsScreen()),
                   );
                 },
                 child: const Text('Iniciar Formulário'),
