@@ -31,22 +31,22 @@
   "question": "Alguma vez você se perguntou se o seu filho pode ser surdo?",
   "scoring_risk_on": "Sim",
   "follow_up": {
-    "interview_prompt": "Você indicou que já se perguntou se seu filho pode ser surdo. O que o levou a esse pensamento? [cite: 122, 123] Por favor, confirme se algum dos comportamentos abaixo acontece.",
+    "interview_prompt": "Você indicou que já se perguntou se seu filho pode ser surdo. O que o levou a esse pensamento?  Por favor, confirme se algum dos comportamentos abaixo acontece.",
     "exemplos_falhou": [
-      { "id": "f1", "label": "Com frequência ignora sons [cite: 126]" },
-      { "id": "f2", "label": "Com frequência ignora as pessoas [cite: 126]" }
+      { "id": "f1", "label": "Com frequência ignora sons " },
+      { "id": "f2", "label": "Com frequência ignora as pessoas " }
     ],
     "logic": {
       "rule": "Se o usuário selecionar QUALQUER um dos exemplos, o resultado é FALHOU. Se o usuário não selecionar NENHUM (equivalente a 'Não para ambos'), o resultado é PASSOU."
     },
     "additional_info_prompt": {
-      "prompt": "Seu filho já fez exame auditivo? [cite: 132]",
+      "prompt": "Seu filho já fez exame auditivo?",
       "type": "single_choice",
       "options": [
-        { "label": "Audição na faixa normal [cite: 137]" },
-        { "label": "Audição abaixo do normal [cite: 138]" },
-        { "label": "Resultados que não tiveram conclusão ou não definitivos [cite: 140]" },
-        { "label": "Não, ele não fez o exame [cite: 135]" }
+        { "label": "Audição na faixa normal" },
+        { "label": "Audição abaixo do normal" },
+        { "label": "Resultados que não tiveram conclusão ou não definitivos" },
+        { "label": "Não, ele não fez o exame" }
       ]
     }
   }
@@ -54,7 +54,7 @@
 
 {
   "id": 3,
-  "question": "O seu filho brinca de faz de contas? (POR EXEMPLO, faz de conta que bebe em um copo vazio, faz de conta que fala ao telefone, faz de conta que dá comida a uma boneca ou a um bichinho de pelúcia?) [cite: 52]",
+  "question": "O seu filho brinca de faz de contas? (POR EXEMPLO, faz de conta que bebe em um copo vazio, faz de conta que fala ao telefone, faz de conta que dá comida a uma boneca ou a um bichinho de pelúcia?)",
   "scoring_risk_on": "Não",
   "follow_up": {
     "interview_prompt": "Para confirmarmos, vamos verificar alguns exemplos de brincadeiras de 'faz de contas'. Seu filho já fez alguma das ações a seguir?",
