@@ -105,31 +105,30 @@ class InterviewProcessor:
             fail_ids = {ex['id'] for ex in logic_data["exemplos_falhou"]}
             user_selections = {item.strip().lower() for item in user_answer.split(',')}
 
-            has_pass = any(sel in pass_ids for sel in user_selections)
-            has_fail = any(sel in fail_ids for sel in user_selections)
+            pass_count = sum(1 for sel in user_selections if sel in pass_ids)
+            fail_count = sum(1 for sel in user_selections if sel in fail_ids)
 
-            if has_pass and not has_fail:
-                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="PASSOU")
-            
-            elif not has_pass and has_fail:
-                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="FALHOU")
-
-            elif has_pass and has_fail:
-                session_state.current_node_id = "tiebreaker"
-                tiebreaker_options = [
-                    Option(id="passou_freq", label=logic_data["tiebreaker"]["options"][0]["label"]),
-                    Option(id="falhou_freq", label=logic_data["tiebreaker"]["options"][1]["label"])
-                ]
-                return BotResponse(
-                    session_id=session_id,
-                    text=logic_data["tiebreaker"]["prompt"],
-                    response_type="single_choice",
-                    options=tiebreaker_options
-                )
-            
-            else: 
+            if pass_count == 0 and fail_count == 0:
                 session_state.current_node_id = None
                 return self.process_question_1(session_id, session_state, "")
+
+            if pass_count > fail_count:
+                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="PASSOU")
+
+            if fail_count > pass_count:
+                return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="FALHOU")
+
+            session_state.current_node_id = "tiebreaker"
+            tiebreaker_options = [
+                Option(id="passou_freq", label=logic_data["tiebreaker"]["options"][0]["label"]),
+                Option(id="falhou_freq", label=logic_data["tiebreaker"]["options"][1]["label"])
+            ]
+            return BotResponse(
+                session_id=session_id,
+                text=logic_data["tiebreaker"]["prompt"],
+                response_type="single_choice",
+                options=tiebreaker_options
+            )
 
         elif node == "tiebreaker":
             outcome = "FALHOU"

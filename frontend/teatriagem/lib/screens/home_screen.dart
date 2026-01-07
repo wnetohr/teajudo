@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'questionnaire_screen.dart'; // Importa a tela do questionário
 import 'instructions_screen.dart';
+import '../theme/app_text_styles.dart';
 
 // --- TELA INICIAL (HomeScreen) ---
 class HomeScreen extends StatelessWidget {
@@ -8,10 +9,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseTextStyle = Theme.of(context)
-      .textTheme
-      .headlineSmall
-      ?.copyWith(fontWeight: FontWeight.bold, fontSize: 48);
     return Scaffold(
       body: Center(
         child: Padding(
@@ -48,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                     // Stroke: drawn first using Paint via TextStyle.foreground
                     RichText(
                       text: TextSpan(
-                        style: baseTextStyle?.copyWith(foreground: Paint()
+                        style: AppTextStyles.titleExtraLarge.copyWith(foreground: Paint()
                           ..style = PaintingStyle.stroke
                           ..strokeWidth = 4
                           ..color = Colors.black),
@@ -62,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                     // Fill: drawn on top
                     RichText(
                       text: TextSpan(
-                        style: baseTextStyle,
+                        style: AppTextStyles.titleExtraLarge,
                         children: const [
                           TextSpan(text: 'T', style: TextStyle(color: Colors.red)),
                           TextSpan(text: 'E', style: TextStyle(color: Colors.yellow)),
@@ -77,17 +74,14 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Welcome text (same size as button label)
-              Builder(builder: (ctx) {
-                final welcomeStyle = Theme.of(ctx).textTheme.labelLarge;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    'Olá! Um olhar atento pode mudar tudo. Boas vindas ao TEAJUDO, à sua ferramenta de apoio na triagem do autismo.',
-                    style: welcomeStyle?.copyWith(color: Colors.blue) ?? const TextStyle(color: Colors.blue),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  'Olá! Um olhar atento pode mudar tudo. Boas vindas ao TEAJUDO, à sua ferramenta de apoio na triagem do autismo.',
+                  style: AppTextStyles.labelLarge.copyWith(color: Colors.blue),
+                  textAlign: TextAlign.center,
+                ),
+              ),
 
               const SizedBox(height: 18),
 

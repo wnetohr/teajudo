@@ -6,6 +6,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../models/api_models.dart'; // Importa os modelos de dados
+import '../theme/app_text_styles.dart'; // Importa os estilos de texto padronizados
 import 'result_screen.dart'; // Importa a tela de resultado
 
 // URL Base da sua API no Render
@@ -124,7 +125,20 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Questionário Inicial'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Questionário Inicial',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Pergunta $_questionNumber de 20',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.blue),
+            ),
+          ],
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4.0),
           child: _isLoading
@@ -171,7 +185,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                 padding: const EdgeInsets.all(24.0),
                 child: Text(
                   _currentResponse!.text,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: AppTextStyles.question,
                   textAlign: TextAlign.center,
                 ),
               ),

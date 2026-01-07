@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
 import 'questionnaire_screen.dart';
+import '../theme/app_text_styles.dart';
 
 class InstructionsScreen extends StatelessWidget {
   const InstructionsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final baseHeading = theme.textTheme.titleLarge;
-    final baseBody = theme.textTheme.bodyMedium;
-    final headingStyle = baseHeading?.copyWith(
-      fontWeight: FontWeight.bold,
-      color: Colors.blue,
-      fontSize: (baseHeading?.fontSize ?? 22) + 4,
-    );
-    final bodyStyle = baseBody?.copyWith(
-      fontSize: (baseBody?.fontSize ?? 14) + 2,
-      height: 1.4,
-    );
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Instruções',style: TextStyle(color: Colors.blue),)),
+      appBar: AppBar(
+        title: const Text(
+          'Instruções',
+          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -31,44 +24,44 @@ class InstructionsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Importante: Antes de Começarmos', style: headingStyle, textAlign: TextAlign.left),
+                      Text('Importante: Antes de Começarmos', style: AppTextStyles.headingLarge),
                       const SizedBox(height: 12),
-                      Text('Por favor, leia com atenção:', style: bodyStyle),
+                      Text('Por favor, leia com atenção:', style: AppTextStyles.bodyLarge),
                       const SizedBox(height: 16),
                       Text.rich(
                         TextSpan(
                           text: '',
-                          style: bodyStyle,
+                          style: AppTextStyles.bodyMedium,
                           children: [
                             TextSpan(
                               text: 'Isto não é um diagnóstico',
-                              style: bodyStyle?.copyWith(fontWeight: FontWeight.bold),
+                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(text: '. Este aplicativo serve apenas para identificar possíveis sinais de autismo. O resultado é um alerta, mas não substitui uma consulta médica. '),
                             TextSpan(
                               text: 'Somente um especialista pode confirmar o diagnóstico',
-                              style: bodyStyle?.copyWith(fontWeight: FontWeight.bold),
+                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(text: '.'),
                           ],
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text('Nossas perguntas seguem o método M-CHAT-R/F. Ele é um questionário usado no mundo todo como o primeiro passo para identificar sinais de autismo.', style: bodyStyle),
+                      Text('Nossas perguntas seguem o método M-CHAT-R/F. Ele é um questionário usado no mundo todo como o primeiro passo para identificar sinais de autismo.', style: AppTextStyles.bodyMedium),
                       const SizedBox(height: 12),
                       Text.rich(
                         TextSpan(
                           text: '',
-                          style: bodyStyle,
+                          style: AppTextStyles.bodyMedium,
                           children: [
                             TextSpan(
                               text: 'Responda com total sinceridade',
-                              style: bodyStyle?.copyWith(fontWeight: FontWeight.bold),
+                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(text: '. Considere como seu filho(a) se comporta na '),
                             TextSpan(
                               text: 'maior parte do tempo',
-                              style: bodyStyle?.copyWith(fontWeight: FontWeight.bold),
+                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(text: ', e não apenas em momentos raros.'),
                           ],
@@ -89,7 +82,7 @@ class InstructionsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                       minimumSize: const Size(160, 44),
                       foregroundColor: Colors.blue,
-                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      textStyle: AppTextStyles.labelLarge,
                     ),
                     onPressed: () {
                       // Replace the instructions screen by the questionnaire
