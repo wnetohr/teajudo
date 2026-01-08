@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/api_models.dart';
 import '../theme/app_text_styles.dart'; // Importa os estilos de texto padronizados
 import 'dart:io' show Platform;
@@ -106,6 +107,20 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           return;
         }
 
+        // Se o item foi concluído, mostra feedback e automaticamente continua
+        // SEM atualizar a UI com a mensagem intermediária
+        if (responseToUse.isItemFinished && !responseToUse.endOfForm && answer.isNotEmpty && answer != 'continuar') {
+          if (mounted) {
+            _showFeedbackSnackBar();
+            Future.delayed(const Duration(milliseconds: 1500), () {
+              if (mounted) {
+                _sendAnswer('continuar'); // Continua automaticamente
+              }
+            });
+          }
+          return; // Não atualiza o estado, mantém a pergunta anterior visível
+        }
+
         setState(() {
           // Usa a versão 'cleaned' da resposta para atualizar a UI
           _currentResponse = responseToUse;
@@ -115,6 +130,11 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           _selected.clear();
           _selectedSingle = null;
         });
+
+        // Mostra feedback após responder (apenas para respostas normais, não para 'continuar')
+        if (answer.isNotEmpty && answer != 'continuar' && mounted) {
+          _showFeedbackSnackBar();
+        }
       } else {
         throw Exception('Falha ao carregar dados da API');
       }
@@ -171,6 +191,37 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
     return const SizedBox.shrink();
   }
 
+  void _showFeedbackSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: 24,
+            ),
+            SizedBox(width: 12),
+            Text(
+              'Resposta registrada!',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(milliseconds: 1200),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,49 +255,40 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
                             const SizedBox(height: 12),
                             Expanded(child: SingleChildScrollView(child: _buildOptions())),
                             const SizedBox(height: 12),
-                            // Se o item foi concluído mas o formulário não terminou,
-                            // o backend pede para enviar 'continuar' para iniciar o próximo follow-up.
-                            if (_currentResponse!.isItemFinished && !_currentResponse!.endOfForm) ...[
-                              ElevatedButton(
-                                onPressed: () => _sendAnswer('continuar'),
-                                child: const Text('Continuar'),
-                              ),
-                            ] else ...[
-                              // Para múltipla escolha permitimos enviar mesmo sem seleção.
-                              // Se a API fornecer uma opção com id 'none', enviamos 'none'.
-                              // Caso contrário, enviamos string vazia (o backend deve interpretar).
-                              if (_currentResponse!.responseType == 'multiple_choice' && _selected.isEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                    'Nenhuma opção selecionada — será enviado "none".',
-                                    style: AppTextStyles.bodySmall,
-                                    textAlign: TextAlign.center,
-                                  ),
+                            // Para múltipla escolha permitimos enviar mesmo sem seleção.
+                            // Se a API fornecer uma opção com id 'none', enviamos 'none'.
+                            // Caso contrário, enviamos string vazia (o backend deve interpretar).
+                            if (_currentResponse!.responseType == 'multiple_choice' && _selected.isEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Text(
+                                  'Nenhuma opção selecionada — será enviado "none".',
+                                  style: AppTextStyles.bodySmall,
+                                  textAlign: TextAlign.center,
                                 ),
-                              ElevatedButton(
-                                onPressed: (_currentResponse!.responseType == 'multiple_choice'
-                                        ? true // sempre permite enviar; payload tratado abaixo
-                                        : (_selectedSingle != null))
-                                    ? () {
-                                        String payload;
-                                        if (_currentResponse!.responseType == 'multiple_choice') {
-                                          if (_selected.isNotEmpty) {
-                                            payload = _selected.join(',');
-                                          } else {
-                                            // Sempre enviar 'none' quando nada foi selecionado.
-                                            // Enviar string vazia faz o backend interpretar como chamada inicial.
-                                            payload = 'none';
-                                          }
-                                        } else {
-                                          payload = _selectedSingle!;
-                                        }
-                                        _sendAnswer(payload);
-                                      }
-                                    : null,
-                                child: const Text('Enviar'),
                               ),
-                            ],
+                            ElevatedButton(
+                              onPressed: (_currentResponse!.responseType == 'multiple_choice'
+                                      ? true // sempre permite enviar; payload tratado abaixo
+                                      : (_selectedSingle != null))
+                                  ? () {
+                                      String payload;
+                                      if (_currentResponse!.responseType == 'multiple_choice') {
+                                        if (_selected.isNotEmpty) {
+                                          payload = _selected.join(',');
+                                        } else {
+                                          // Sempre enviar 'none' quando nada foi selecionado.
+                                          // Enviar string vazia faz o backend interpretar como chamada inicial.
+                                          payload = 'none';
+                                        }
+                                      } else {
+                                        payload = _selectedSingle!;
+                                      }
+                                      _sendAnswer(payload);
+                                    }
+                                  : null,
+                              child: const Text('Enviar'),
+                            ),
                           ],
                         ),
         ),
