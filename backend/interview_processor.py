@@ -88,10 +88,13 @@ class InterviewProcessor:
     def process_question_1(self, session_id, session_state, user_answer):
         node = session_state.current_node_id
         logic_data = self.questions[1]['follow_up']
+        normalized_answer = user_answer.strip().lower()
 
-        if user_answer == "":
+        # Primeira chamada: apresenta as opções, incluindo a opção explícita de nenhuma.
+        if node is None and user_answer == "":
             session_state.current_node_id = "analysis"
             all_options = [Option(**opt) for opt in logic_data["exemplos_passou"] + logic_data["exemplos_falhou"]]
+            all_options.append(Option(id="none", label="Nenhuma das opções acima"))
             
             return BotResponse(
                 session_id=session_id,
@@ -103,14 +106,19 @@ class InterviewProcessor:
         if node == "analysis":
             pass_ids = {ex['id'] for ex in logic_data["exemplos_passou"]}
             fail_ids = {ex['id'] for ex in logic_data["exemplos_falhou"]}
-            user_selections = {item.strip().lower() for item in user_answer.split(',')}
+            user_selections = {item.strip().lower() for item in user_answer.split(',') if item.strip()}
+
+            # Se o usuário escolher "none" ou simplesmente não marcar nada, registramos e seguimos.
+            if not user_selections or normalized_answer == "none":
+                return BotResponse(
+                    session_id=session_id,
+                    text="Ok, vou registrar que nenhum dos exemplos se aplica.",
+                    is_item_finished=True,
+                    outcome="FALHOU"
+                )
 
             pass_count = sum(1 for sel in user_selections if sel in pass_ids)
             fail_count = sum(1 for sel in user_selections if sel in fail_ids)
-
-            if pass_count == 0 and fail_count == 0:
-                session_state.current_node_id = None
-                return self.process_question_1(session_id, session_state, "")
 
             if pass_count > fail_count:
                 return BotResponse(session_id=session_id, text="Ok, entendido.", is_item_finished=True, outcome="PASSOU")
