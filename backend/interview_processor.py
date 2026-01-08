@@ -108,13 +108,24 @@ class InterviewProcessor:
             fail_ids = {ex['id'] for ex in logic_data["exemplos_falhou"]}
             user_selections = {item.strip().lower() for item in user_answer.split(',') if item.strip()}
 
-            # Se o usuário escolher "none" ou simplesmente não marcar nada, registramos e seguimos.
-            if not user_selections or normalized_answer == "none":
+            # Apenas a escolha explícita de "none" fecha o item; entrada vazia repete o prompt.
+            if normalized_answer == "none":
                 return BotResponse(
                     session_id=session_id,
                     text="Ok, vou registrar que nenhum dos exemplos se aplica.",
                     is_item_finished=True,
                     outcome="FALHOU"
+                )
+
+            if not user_selections:
+                session_state.current_node_id = "analysis"
+                all_options = [Option(**opt) for opt in logic_data["exemplos_passou"] + logic_data["exemplos_falhou"]]
+                all_options.append(Option(id="none", label="Nenhuma das opções acima"))
+                return BotResponse(
+                    session_id=session_id,
+                    text="Por favor, selecione uma das opções (pode escolher 'Nenhuma das opções acima').",
+                    response_type="multiple_choice",
+                    options=all_options
                 )
 
             pass_count = sum(1 for sel in user_selections if sel in pass_ids)
