@@ -27,6 +27,7 @@ class SessionState(BaseModel):
 class BotResponse(BaseModel):
     session_id: str
     text: str
+    question_id: Optional[int] = None
     
     # --- Campos para a interface do app mobile ---
     response_type: Literal["text_only", "single_choice", "multiple_choice"] = "text_only"

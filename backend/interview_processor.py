@@ -37,8 +37,9 @@ class InterviewProcessor:
         is_continue_call = user_answer.lower() == "continuar" and session_state.current_node_id is None
 
         # Determina qual método específico da pergunta chamar
+        question_id = session_state.follow_up_needed[session_state.current_follow_up_index]
+
         if is_initial_call or is_continue_call:
-            question_id = session_state.follow_up_needed[session_state.current_follow_up_index]
             process_method = self.method_factory.get(question_id, self.process_not_implemented)
             response = process_method(session_id, session_state, "") # Inicia a entrevista do item
             # Adiciona a pergunta original como contexto, mantendo o enunciado de seguimento em primeiro lugar
@@ -47,9 +48,12 @@ class InterviewProcessor:
                 response.text = f"{response.text}\n\nPergunta original ({question_id}): {question_text}"
         else:
             # Processamento normal de uma resposta no meio de uma entrevista de item
-            question_id = session_state.follow_up_needed[session_state.current_follow_up_index]
             process_method = self.method_factory.get(question_id, self.process_not_implemented)
             response = process_method(session_id, session_state, user_answer)
+
+        # Expõe o id da pergunta de seguimento para o frontend
+        if response:
+            response.question_id = question_id
 
         # Adiciona a mensagem inicial apenas na primeira chamada da entrevista inteira
         if is_initial_call:

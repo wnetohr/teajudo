@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:developer' as developer;
 
 import '../models/api_models.dart'; // Importa os modelos de dados
 import '../theme/app_text_styles.dart'; // Importa os estilos de texto padronizados
@@ -75,6 +76,11 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
     try {
       final message = UserMessage(sessionId: _sessionId, text: answer);
+      
+      print('═════════════════════════════════════════');
+      print('[ENVIANDO] Mensagem para API: ${message.toJson()}');
+      print('[SESSION_ID] $_sessionId');
+      print('═════════════════════════════════════════');
 
       final response = await http.post(
         Uri.parse(aPIUrl),
@@ -82,16 +88,41 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         body: message.toJson(),
       );
 
+      print('═════════════════════════════════════════');
+      print('[RESPOSTA_BRUTA] Status: ${response.statusCode}');
+      print('[RESPOSTA_BODY] ${response.body}');
+      print('═════════════════════════════════════════');
+
       if (response.statusCode == 200) {
         // Usa utf8.decode para garantir acentuação correta
-        final responseData =
-            BotResponse.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
+        final decodedBody = utf8.decode(response.bodyBytes);
+        
+        final jsonData = jsonDecode(decodedBody);
+        print('═════════════════════════════════════════');
+        print('[RESPOSTA_JSON COMPLETA]');
+        print(jsonEncode(jsonData));
+        print('═════════════════════════════════════════');
+        
+        final responseData = BotResponse.fromJson(jsonData);
+
+        print('═════════════════════════════════════════');
+        print('[BOT_RESPONSE_PARSED]');
+        print('Texto da pergunta: ${responseData.text}');
+        print('Número da pergunta: $_questionNumber');
+        print('Tipo de resposta: ${responseData.responseType}');
+        print('Número de opções: ${responseData.options.length}');
+        print('Opções: ${responseData.options.map((o) => '${o.id}: ${o.label}').join(' | ')}');
+        print('Fim do formulário: ${responseData.endOfForm}');
+        print('Resultado: ${responseData.outcome}');
+        print('Score: ${responseData.score}');
+        print('═════════════════════════════════════════');
 
         // Se a API retornar o fim do formulário (Risco Baixo/Alto)
         // OU se o tipo de resposta mudar (início do follow-up de Risco Médio),
         // vamos para a tela de resultado.
         if (responseData.endOfForm ||
             responseData.responseType != 'text_only') {
+          print('✓ [NAVEGANDO] Indo para tela de resultado');
           if (mounted) {
             Navigator.pushReplacement(
               context,
@@ -109,11 +140,15 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             }
             _isLoading = false;
           });
+          print('✓ [PERGUNTA_ATUALIZADA] Pergunta $_questionNumber exibida');
         }
       } else {
         throw Exception('Falha ao carregar dados da API');
       }
     } catch (e) {
+      print('═════════════════════════════════════════');
+      print('✗ [ERRO] $e');
+      print('═════════════════════════════════════════');
       setState(() {
         _isLoading = false;
         _errorMessage = 'Erro de conexão: $e';

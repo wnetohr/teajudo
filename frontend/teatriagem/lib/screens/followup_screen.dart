@@ -43,6 +43,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
   String? _errorMessage;
   final Set<String> _selected = {}; // para múltipla escolha
   String? _selectedSingle;
+  bool _isFirstFollowupQuestion = true;
 
   @override
   void initState() {
@@ -61,27 +62,49 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
     });
 
     try {
-      // removed debug prints for cleaner analyzer output
       final message = UserMessage(sessionId: widget.sessionId, text: answer);
+      
+      print('═════════════════════════════════════════');
+      print('[ENVIANDO] Mensagem para API: ${message.toJson()}');
+      print('[SESSION_ID] ${widget.sessionId}');
+      print('═════════════════════════════════════════');
+      
       final response = await http.post(
         Uri.parse(aPIUrl),
         headers: {'Content-Type': 'application/json'},
         body: message.toJson(),
       );
 
-      if (response.statusCode == 200) {
-        final responseData = BotResponse.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
+      print('═════════════════════════════════════════');
+      print('[RESPOSTA_BRUTA] Status: ${response.statusCode}');
+      print('[RESPOSTA_BODY] ${response.body}');
+      print('═════════════════════════════════════════');
 
-        // Se o backend retornar um cabeçalho + pergunta (separados por duas quebras de linha),
-        // removemos o cabeçalho e usamos apenas a parte da pergunta aqui.
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final jsonData = jsonDecode(decodedBody);
+        
+        print('═════════════════════════════════════════');
+        print('[RESPOSTA_JSON COMPLETA - FOLLOW UP]');
+        print(jsonEncode(jsonData));
+        print('═════════════════════════════════════════');
+        
+        final responseData = BotResponse.fromJson(jsonData);
+
+        // REMOVER LIMPEZA: Usar o texto original completo, não remover instruções
         String cleanedText = responseData.text;
-        if (cleanedText.contains('\n\n')) {
-          final parts = cleanedText.split('\n\n');
-          if (parts.length > 1) {
-            // Mantemos somente a parte após o primeiro bloco de texto (a pergunta)
-            cleanedText = parts.sublist(1).join('\n\n');
-          }
-        }
+        
+        print('═════════════════════════════════════════');
+        print('[BOT_RESPONSE_PARSED - FOLLOW UP]');
+        print('Texto completo (SEM limpeza): $cleanedText');
+        print('Tipo de resposta: ${responseData.responseType}');
+        print('Número de opções: ${responseData.options.length}');
+        print('Opções: ${responseData.options.map((o) => '${o.id}: ${o.label}').join(' | ')}');
+        print('Item finalizado: ${responseData.isItemFinished}');
+        print('Fim do formulário: ${responseData.endOfForm}');
+        print('Resultado: ${responseData.outcome}');
+        print('Score: ${responseData.score}');
+        print('═════════════════════════════════════════');
 
         final responseToUse = BotResponse(
           sessionId: responseData.sessionId,
@@ -94,9 +117,8 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           score: responseData.score,
         );
 
-        // parsed metadata available in responseData; debug logs removed
-
         if (responseToUse.endOfForm) {
+          print('✓ [NAVEGANDO] Indo para tela de resultado final');
           // Transiciona para a tela de resultado final
           if (mounted) {
             Navigator.pushReplacement(
@@ -110,6 +132,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
         // Se o item foi concluído, mostra feedback e automaticamente continua
         // SEM atualizar a UI com a mensagem intermediária
         if (responseToUse.isItemFinished && !responseToUse.endOfForm && answer.isNotEmpty && answer != 'continuar') {
+          print('✓ [ITEM_FINALIZADO] Item completado, aguardando ${answer != 'continuar' ? '1.5s' : '0s'} para continuar');
           if (mounted) {
             _showFeedbackSnackBar();
             Future.delayed(const Duration(milliseconds: 1500), () {
@@ -124,12 +147,14 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
         setState(() {
           // Usa a versão 'cleaned' da resposta para atualizar a UI
           _currentResponse = responseToUse;
-          // DEBUG: log resposta bruta e texto
-          // debug prints removed
           _isLoading = false;
           _selected.clear();
           _selectedSingle = null;
+          // Após exibir a primeira pergunta do follow-up, as demais não mostram o cabeçalho.
+          _isFirstFollowupQuestion = false;
         });
+
+        print('✓ [PERGUNTA_ATUALIZADA] Pergunta exibida no Follow Up');
 
         // Mostra feedback após responder (apenas para respostas normais, não para 'continuar')
         if (answer.isNotEmpty && answer != 'continuar' && mounted) {
@@ -139,6 +164,9 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
         throw Exception('Falha ao carregar dados da API');
       }
     } catch (e) {
+      print('═════════════════════════════════════════');
+      print('✗ [ERRO] $e');
+      print('═════════════════════════════════════════');
       setState(() {
         _isLoading = false;
         _errorMessage = 'Erro de conexão: $e';
@@ -224,6 +252,18 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Se a API mandar um cabeçalho + pergunta separados por duas quebras de linha,
+    // exibimos o cabeçalho como instrução só na primeira pergunta; nas demais, apenas a pergunta.
+    String displayText = _currentResponse?.text ?? '';
+    String? introText;
+    if (_currentResponse != null && displayText.contains('\n\n')) {
+      final parts = displayText.split('\n\n');
+      if (parts.length > 1) {
+        introText = parts.first.trim();
+        displayText = parts.sublist(1).join('\n\n').trim();
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -246,9 +286,22 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
                             Card(
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: Text(
-                                  _currentResponse!.text,
-                                  style: AppTextStyles.question,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (_isFirstFollowupQuestion && introText != null && introText.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0),
+                                        child: Text(
+                                          introText,
+                                          style: AppTextStyles.bodySmall,
+                                        ),
+                                      ),
+                                    Text(
+                                      displayText,
+                                      style: AppTextStyles.question,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -262,7 +315,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: Text(
-                                  'Nenhuma opção selecionada — será enviado "none".',
+                                  'Nenhuma opção marcada — vamos registrar "Nenhuma das opções acima".',
                                   style: AppTextStyles.bodySmall,
                                   textAlign: TextAlign.center,
                                 ),
