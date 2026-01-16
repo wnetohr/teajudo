@@ -41,6 +41,10 @@ class InterviewProcessor:
             question_id = session_state.follow_up_needed[session_state.current_follow_up_index]
             process_method = self.method_factory.get(question_id, self.process_not_implemented)
             response = process_method(session_id, session_state, "") # Inicia a entrevista do item
+            # Adiciona a pergunta original como contexto, mantendo o enunciado de seguimento em primeiro lugar
+            question_text = self.questions.get(question_id, {}).get("question", "")
+            if response and question_text:
+                response.text = f"{response.text}\n\nPergunta original ({question_id}): {question_text}"
         else:
             # Processamento normal de uma resposta no meio de uma entrevista de item
             question_id = session_state.follow_up_needed[session_state.current_follow_up_index]
@@ -49,9 +53,10 @@ class InterviewProcessor:
 
         # Adiciona a mensagem inicial apenas na primeira chamada da entrevista inteira
         if is_initial_call:
-             initial_message = (f"Triagem inicial finalizada. Pontuação: {session_state.score} (Risco Médio).\n\n"
-                               f"Agora, vamos iniciar uma entrevista para obter mais informações sobre as respostas de risco.")
-             response.text = initial_message + "\n\n" + response.text
+            initial_message = (f"Triagem inicial finalizada. Pontuação: {session_state.score} (Risco Médio).\n\n"
+                              f"Agora, vamos iniciar uma entrevista para obter mais informações sobre as respostas de risco.")
+            # Mostra primeiro o enunciado de seguimento e, depois, a mensagem introdutória
+            response.text = response.text + "\n\n" + initial_message
 
         # AGORA, a lógica de finalização/transição é executada APÓS a chamada do método específico
         if response and response.is_item_finished:
