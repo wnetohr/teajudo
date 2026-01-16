@@ -123,7 +123,7 @@ class InterviewProcessor:
                 all_options.append(Option(id="none", label="Nenhuma das opções acima"))
                 return BotResponse(
                     session_id=session_id,
-                    text="Por favor, selecione uma das opções (pode escolher 'Nenhuma das opções acima').",
+                    text=f"{logic_data['interview_prompt']}\n\nPor favor, selecione uma das opções (pode escolher 'Nenhuma das opções acima').",
                     response_type="multiple_choice",
                     options=all_options
                 )
