@@ -43,7 +43,6 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
   String? _errorMessage;
   final Set<String> _selected = {}; // para múltipla escolha
   String? _selectedSingle;
-  bool _isFirstFollowupQuestion = true;
 
   @override
   void initState() {
@@ -63,12 +62,12 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
 
     try {
       final message = UserMessage(sessionId: widget.sessionId, text: answer);
-      
+
       print('═════════════════════════════════════════');
       print('[ENVIANDO] Mensagem para API: ${message.toJson()}');
       print('[SESSION_ID] ${widget.sessionId}');
       print('═════════════════════════════════════════');
-      
+
       final response = await http.post(
         Uri.parse(aPIUrl),
         headers: {'Content-Type': 'application/json'},
@@ -83,23 +82,26 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         final jsonData = jsonDecode(decodedBody);
-        
+
         print('═════════════════════════════════════════');
         print('[RESPOSTA_JSON COMPLETA - FOLLOW UP]');
         print(jsonEncode(jsonData));
         print('═════════════════════════════════════════');
-        
+
         final responseData = BotResponse.fromJson(jsonData);
 
         // REMOVER LIMPEZA: Usar o texto original completo, não remover instruções
         String cleanedText = responseData.text;
-        
+
         print('═════════════════════════════════════════');
         print('[BOT_RESPONSE_PARSED - FOLLOW UP]');
+        print('Question ID: ${responseData.questionId}');
         print('Texto completo (SEM limpeza): $cleanedText');
         print('Tipo de resposta: ${responseData.responseType}');
         print('Número de opções: ${responseData.options.length}');
-        print('Opções: ${responseData.options.map((o) => '${o.id}: ${o.label}').join(' | ')}');
+        print(
+          'Opções: ${responseData.options.map((o) => '${o.id}: ${o.label}').join(' | ')}',
+        );
         print('Item finalizado: ${responseData.isItemFinished}');
         print('Fim do formulário: ${responseData.endOfForm}');
         print('Resultado: ${responseData.outcome}');
@@ -115,6 +117,7 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           endOfForm: responseData.endOfForm,
           outcome: responseData.outcome,
           score: responseData.score,
+          questionId: responseData.questionId,
         );
 
         if (responseToUse.endOfForm) {
@@ -123,7 +126,10 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           if (mounted) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => ResultScreen(response: responseData)),
+              MaterialPageRoute(
+                builder: (_) =>
+                    ResultScreen(response: responseData, allowFollowUp: false),
+              ),
             );
           }
           return;
@@ -131,8 +137,13 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
 
         // Se o item foi concluído, mostra feedback e automaticamente continua
         // SEM atualizar a UI com a mensagem intermediária
-        if (responseToUse.isItemFinished && !responseToUse.endOfForm && answer.isNotEmpty && answer != 'continuar') {
-          print('✓ [ITEM_FINALIZADO] Item completado, aguardando ${answer != 'continuar' ? '1.5s' : '0s'} para continuar');
+        if (responseToUse.isItemFinished &&
+            !responseToUse.endOfForm &&
+            answer.isNotEmpty &&
+            answer != 'continuar') {
+          print(
+            '✓ [ITEM_FINALIZADO] Item completado, aguardando ${answer != 'continuar' ? '1.5s' : '0s'} para continuar',
+          );
           if (mounted) {
             _showFeedbackSnackBar();
             Future.delayed(const Duration(milliseconds: 1500), () {
@@ -150,8 +161,6 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           _isLoading = false;
           _selected.clear();
           _selectedSingle = null;
-          // Após exibir a primeira pergunta do follow-up, as demais não mostram o cabeçalho.
-          _isFirstFollowupQuestion = false;
         });
 
         print('✓ [PERGUNTA_ATUALIZADA] Pergunta exibida no Follow Up');
@@ -224,26 +233,17 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
       SnackBar(
         content: Row(
           children: const [
-            Icon(
-              Icons.check_circle,
-              color: Colors.white,
-              size: 24,
-            ),
+            Icon(Icons.check_circle, color: Colors.white, size: 24),
             SizedBox(width: 12),
             Text(
               'Resposta registrada!',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
         ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(16),
         duration: const Duration(milliseconds: 1200),
       ),
@@ -252,14 +252,17 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Se a API mandar um cabeçalho + pergunta separados por duas quebras de linha,
-    // exibimos o cabeçalho como instrução só na primeira pergunta; nas demais, apenas a pergunta.
+    // Se question_id == 1: exibe texto completo (ambos parágrafos)
+    // Se question_id != 1: remove o primeiro parágrafo e exibe só a pergunta limpa
     String displayText = _currentResponse?.text ?? '';
-    String? introText;
-    if (_currentResponse != null && displayText.contains('\n\n')) {
+    bool isFirstQuestion = _currentResponse?.questionId == 1;
+
+    if (!isFirstQuestion &&
+        _currentResponse != null &&
+        displayText.contains('\n\n')) {
+      // Para perguntas que não são a primeira, remove o cabeçalho
       final parts = displayText.split('\n\n');
       if (parts.length > 1) {
-        introText = parts.first.trim();
         displayText = parts.sublist(1).join('\n\n').trim();
       }
     }
@@ -277,73 +280,62 @@ class _FollowUpScreenState extends State<FollowUpScreen> {
           child: _isLoading && _currentResponse == null
               ? const CircularProgressIndicator()
               : _errorMessage != null
-                  ? Text(_errorMessage!, style: const TextStyle(color: Colors.red))
-                  : _currentResponse == null
-                      ? const Text('Iniciando entrevista...')
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (_isFirstFollowupQuestion && introText != null && introText.isNotEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 8.0),
-                                        child: Text(
-                                          introText,
-                                          style: AppTextStyles.bodySmall,
-                                        ),
-                                      ),
-                                    Text(
-                                      displayText,
-                                      style: AppTextStyles.question,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Expanded(child: SingleChildScrollView(child: _buildOptions())),
-                            const SizedBox(height: 12),
-                            // Para múltipla escolha permitimos enviar mesmo sem seleção.
-                            // Se a API fornecer uma opção com id 'none', enviamos 'none'.
-                            // Caso contrário, enviamos string vazia (o backend deve interpretar).
-                            if (_currentResponse!.responseType == 'multiple_choice' && _selected.isEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Text(
-                                  'Nenhuma opção marcada — vamos registrar "Nenhuma das opções acima".',
-                                  style: AppTextStyles.bodySmall,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ElevatedButton(
-                              onPressed: (_currentResponse!.responseType == 'multiple_choice'
-                                      ? true // sempre permite enviar; payload tratado abaixo
-                                      : (_selectedSingle != null))
-                                  ? () {
-                                      String payload;
-                                      if (_currentResponse!.responseType == 'multiple_choice') {
-                                        if (_selected.isNotEmpty) {
-                                          payload = _selected.join(',');
-                                        } else {
-                                          // Sempre enviar 'none' quando nada foi selecionado.
-                                          // Enviar string vazia faz o backend interpretar como chamada inicial.
-                                          payload = 'none';
-                                        }
-                                      } else {
-                                        payload = _selectedSingle!;
-                                      }
-                                      _sendAnswer(payload);
-                                    }
-                                  : null,
-                              child: const Text('Enviar'),
-                            ),
-                          ],
+              ? Text(_errorMessage!, style: const TextStyle(color: Colors.red))
+              : _currentResponse == null
+              ? const Text('Iniciando entrevista...')
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(displayText, style: AppTextStyles.question),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: SingleChildScrollView(child: _buildOptions()),
+                    ),
+                    const SizedBox(height: 12),
+                    // Para múltipla escolha permitimos enviar mesmo sem seleção.
+                    // Se a API fornecer uma opção com id 'none', enviamos 'none'.
+                    // Caso contrário, enviamos string vazia (o backend deve interpretar).
+                    if (_currentResponse!.responseType == 'multiple_choice' &&
+                        _selected.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          'Nenhuma opção marcada — vamos registrar "Nenhuma das opções acima".',
+                          style: AppTextStyles.bodySmall,
+                          textAlign: TextAlign.center,
                         ),
+                      ),
+                    ElevatedButton(
+                      onPressed:
+                          (_currentResponse!.responseType == 'multiple_choice'
+                              ? true // sempre permite enviar; payload tratado abaixo
+                              : (_selectedSingle != null))
+                          ? () {
+                              String payload;
+                              if (_currentResponse!.responseType ==
+                                  'multiple_choice') {
+                                if (_selected.isNotEmpty) {
+                                  payload = _selected.join(',');
+                                } else {
+                                  // Sempre enviar 'none' quando nada foi selecionado.
+                                  // Enviar string vazia faz o backend interpretar como chamada inicial.
+                                  payload = 'none';
+                                }
+                              } else {
+                                payload = _selectedSingle!;
+                              }
+                              _sendAnswer(payload);
+                            }
+                          : null,
+                      child: const Text('Enviar'),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

@@ -6,50 +6,74 @@ import 'followup_screen.dart'; // Tela de entrevista de seguimento
 // --- TELA DE RESULTADO (ResultScreen) ---
 class ResultScreen extends StatelessWidget {
   final BotResponse response;
-  const ResultScreen({super.key, required this.response});
+  final bool allowFollowUp;
+  const ResultScreen({
+    super.key,
+    required this.response,
+    this.allowFollowUp = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Determina o tipo de risco com base na resposta
-    // Médio: end_of_form = false (precisa de follow-up)
-    // Elevado: outcome contém "alto" ou "elevado"
-    // Baixo: o resto
-    final bool isMediumRisk = response.endOfForm == false;
-    final bool isHighRisk = !isMediumRisk && 
-        ((response.outcome?.toLowerCase().contains('alto') ?? false) || 
-         (response.outcome?.toLowerCase().contains('elevado') ?? false) ||
-         response.text.toLowerCase().contains('risco alto') ||
-         response.text.toLowerCase().contains('risco elevado'));
-    
+    // Prioriza o score na definição do risco
+    // Baixo: 0 a 2
+    // Médio: 3 a 7
+    // Elevado: 8 ou maior
+    final int score = response.score ?? -1;
+    final bool hasScore = score >= 0;
+    final bool isLowRisk = hasScore && score <= 2;
+    final bool isMediumRisk = hasScore
+        ? (score >= 3 && score <= 7)
+        : response.endOfForm == false;
+    final bool isHighRisk = hasScore
+        ? (score >= 8)
+        : (!isMediumRisk &&
+              ((response.outcome?.toLowerCase().contains('alto') ?? false) ||
+                  (response.outcome?.toLowerCase().contains('elevado') ??
+                      false) ||
+                  response.text.toLowerCase().contains('risco alto') ||
+                  response.text.toLowerCase().contains('risco elevado')));
+
     // Define cores baseado no tipo de risco
-    final Color primaryColor = isHighRisk 
-        ? Colors.red[100]! 
+    final Color primaryColor = isHighRisk
+        ? Colors.red[100]!
         : (isMediumRisk ? Colors.orange[100]! : Colors.green[100]!);
-    final Color borderColor = isHighRisk 
-        ? Colors.red[400]! 
+    final Color borderColor = isHighRisk
+        ? Colors.red[400]!
         : (isMediumRisk ? Colors.orange[400]! : Colors.green[400]!);
-    final Color iconBgColor = isHighRisk 
-        ? Colors.red[300]! 
+    final Color iconBgColor = isHighRisk
+        ? Colors.red[300]!
         : (isMediumRisk ? Colors.orange[300]! : Colors.green[300]!);
-    final Color titleColor = isHighRisk 
-        ? Colors.red[800]! 
+    final Color titleColor = isHighRisk
+        ? Colors.red[800]!
         : (isMediumRisk ? Colors.orange[800]! : Colors.green[800]!);
-    final Color buttonColor = isHighRisk 
-        ? Colors.red[600]! 
+    final Color buttonColor = isHighRisk
+        ? Colors.red[600]!
         : (isMediumRisk ? Colors.orange[600]! : Colors.green[600]!);
-    final IconData resultIcon = isHighRisk 
-        ? Icons.warning 
+    final IconData resultIcon = isHighRisk
+        ? Icons.warning
         : (isMediumRisk ? Icons.info : Icons.check_circle);
-    
-    // Extrai o texto principal (primeiro bloco)
-    String mainText = response.text;
-    String? followUpMessage;
-    
-    if (response.responseType != 'text_only' && response.text.contains('\n\n')) {
-      final parts = response.text.split('\n\n');
-      if (parts.length >= 2) {
-        mainText = parts[0];
-        followUpMessage = parts[1];
+
+    // Define o texto principal sem exibir perguntas do follow-up
+    String mainText;
+    if (isMediumRisk && allowFollowUp) {
+      // Risco médio do questionário inicial: usa outcome ou mensagem padrão
+      mainText = (response.outcome ?? '').trim();
+      if (mainText.isEmpty) {
+        mainText =
+            'O resultado indica risco médio. Recomendamos iniciar a entrevista de seguimento para uma avaliação mais detalhada.';
+      }
+    } else if (!allowFollowUp) {
+      // Vindo do follow-up: usa o texto completo sem separar parágrafos
+      mainText = response.text.trim();
+    } else {
+      // Outros casos: pega apenas o primeiro parágrafo
+      mainText = response.text;
+      if (response.text.contains('\n\n')) {
+        final parts = response.text.split('\n\n');
+        if (parts.isNotEmpty) {
+          mainText = parts.first.trim();
+        }
       }
     }
 
@@ -68,17 +92,14 @@ class ResultScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 24),
-              
+
               // Container Principal - Resultado
               Card(
                 elevation: 8,
                 color: primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: borderColor,
-                    width: 2,
-                  ),
+                  side: BorderSide(color: borderColor, width: 2),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(28.0),
@@ -101,18 +122,18 @@ class ResultScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Título do resultado
                       Text(
-                        isHighRisk 
-                            ? 'Risco Elevado' 
+                        isHighRisk
+                            ? 'Risco Elevado'
                             : (isMediumRisk ? 'Risco Médio' : 'Risco Baixo'),
                         style: AppTextStyles.titleMedium.copyWith(
                           color: titleColor,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Texto principal do resultado
                       Text(
                         mainText,
@@ -126,44 +147,9 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
-              // Container Secundário - Mensagem de Follow-up (se houver)
-              if (followUpMessage != null) ...[
-                const SizedBox(height: 24),
-                Card(
-                  elevation: 4,
-                  color: Colors.blue[50],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: Colors.blue[300]!,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.lightbulb_outline,
-                          size: 40,
-                          color: Colors.blue[700],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          followUpMessage,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: Colors.blue[900],
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              
+
+              // Não exibir mensagens com perguntas na tela de resultado
+
               // Container de Orientação para Risco Elevado
               if (isHighRisk) ...[
                 const SizedBox(height: 24),
@@ -172,10 +158,7 @@ class ResultScreen extends StatelessWidget {
                   color: Colors.blue[50],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: Colors.blue[300]!,
-                      width: 1.5,
-                    ),
+                    side: BorderSide(color: Colors.blue[300]!, width: 1.5),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -200,19 +183,16 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               // Container de Orientação para Risco Baixo
-              if (!isMediumRisk && !isHighRisk) ...[
+              if (isLowRisk) ...[
                 const SizedBox(height: 24),
                 Card(
                   elevation: 4,
                   color: Colors.blue[50],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: Colors.blue[300]!,
-                      width: 1.5,
-                    ),
+                    side: BorderSide(color: Colors.blue[300]!, width: 1.5),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -237,11 +217,11 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 32),
-              
+
               // Botões de Ação
-              if (isMediumRisk) ...[
+              if (isMediumRisk && allowFollowUp) ...[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -254,7 +234,8 @@ class ResultScreen extends StatelessWidget {
                     // Navega para a tela de seguimento passando o sessionId
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (_) => FollowUpScreen(sessionId: response.sessionId),
+                        builder: (_) =>
+                            FollowUpScreen(sessionId: response.sessionId),
                       ),
                     );
                   },
@@ -288,11 +269,11 @@ class ResultScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 12),
-              
+
               // Botão secundário - Voltar à Tela Inicial (para médio e elevado)
-              if (isMediumRisk)
+              if (isMediumRisk && allowFollowUp)
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -312,7 +293,7 @@ class ResultScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              
+
               const SizedBox(height: 24),
             ],
           ),

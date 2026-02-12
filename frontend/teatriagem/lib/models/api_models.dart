@@ -13,6 +13,7 @@ class BotResponse {
   final bool endOfForm;
   final String? outcome;
   final int? score;
+  final dynamic questionId; // Pode vir como int ou String
 
   BotResponse({
     required this.sessionId,
@@ -23,6 +24,7 @@ class BotResponse {
     required this.endOfForm,
     this.outcome,
     this.score,
+    this.questionId,
   });
 
   factory BotResponse.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class BotResponse {
       endOfForm: json['end_of_form'],
       outcome: json['outcome'],
       score: json['score'],
+      questionId: json['question_id'], // Aceita int ou String
     );
   }
 }
